@@ -177,20 +177,7 @@
             <!-- ... rest of home content ... -->
         </section>
 
-        <!-- Recent Projects Section -->
-        <section id="recent-projects" class="my-12 max-w-2xl mx-auto">
-            <h2 class="text-2xl font-bold mb-4 text-center">Recent Projects</h2>
-            <div class="bg-gray-800 bg-opacity-30 rounded-lg p-6 mb-6">
-                <h3 class="text-xl font-semibold mb-2">The Seed App</h3>
-                <p class="text-njd-text-secondary mb-4">
-                    <strong>TheSeedApp.com</strong> is a digital tool we designed and developed to help people engage in Scripture meditation and spiritual formation. For this project, we created the brand, crafted the content messaging, built the landing page, developed the web app, and continue to provide on-going support through 
-                    <a href="https://newjourneydesign.co" target="_blank" class="underline hover:text-njd-accent transition">
-                        NewJourneyDesigns.co
-                    </a>. The result is a beautiful and minimal interface that supports a consistent rhythm of reflection in God’s Word.
-                </p>
-            </div>
-            <!-- Add more projects here as needed -->
-        </section>
+       
         <!-- Setup Modal -->
         <div id="setup-modal" class="modal hidden">
             <div class="modal-content">
@@ -294,9 +281,6 @@
                     >
                       <img src="https://i.imgur.com/26XfGSP.png" alt="Seed Icon" class="w-5 h-5 mr-2">
                       Seed Planted
-                    </button>
-                    <button id="undo-seed-btn" class="ml-4 px-4 py-2 text-seed-dark-green bg-transparent rounded hover:bg-seed-dark-green hover:text-seed-off-white transition">
-                      Undo
                     </button>
                 </div>
             </section>
@@ -822,17 +806,6 @@
 
             plan.progress = Math.min(totalVerses, versesDone + versesPerDay);
             versesAddedToday = versesPerDay;   // remember what we added so we can undo
-            savePlan();
-            updateUI();
-        });
-
-        // --- Undo Seed Button Handler (reverts today's increment) ---
-        document.getElementById('undo-seed-btn').addEventListener('click', () => {
-            if (!plan || !plan.verses || versesAddedToday === 0) return;
-
-            // Roll back the verses we just added, but never below 0
-            plan.progress = Math.max(0, plan.progress - versesAddedToday);
-            versesAddedToday = 0;          // reset tracker
             savePlan();
             updateUI();
         });
