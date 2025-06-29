@@ -139,8 +139,6 @@
             <ul id="main-nav" class="hidden md:flex space-x-6 text-lg">
                 <li><a href="#home" class="hover:text-seed-pale-yellow transition duration-300 rounded-md p-2"
                         onclick="showSection('home')">Home</a></li>
-                <li><a href="#blog" class="hover:text-seed-pale-yellow transition duration-300 rounded-md p-2"
-                        onclick="showSection('blog')">Blog</a></li>
                 <li><a href="/app" class="hover:text-seed-pale-yellow transition duration-300 rounded-md p-2">Open App</a></li>
             </ul>
         </nav>
@@ -150,9 +148,6 @@
                 <li><a href="#home"
                         class="block text-seed-off-white hover:text-seed-pale-yellow transition duration-300 p-2 rounded-md"
                         onclick="showSection('home'); hideMobileMenu()">Home</a></li>
-                <li><a href="#blog"
-                        class="block text-seed-off-white hover:text-seed-pale-yellow transition duration-300 p-2 rounded-md"
-                        onclick="showSection('blog'); hideMobileMenu()">Blog</a></li>
                 <li><a href="/app"
                         class="block text-seed-off-white hover:text-seed-pale-yellow transition duration-300 p-2 rounded-md"
                         onclick="hideMobileMenu()">Open App</a></li>
@@ -283,59 +278,6 @@
             </div>
         </section>
 
-        <!-- Blog Page Section -->
-        <section id="blog" class="page-section hidden container mx-auto px-4 py-12 md:py-20 animate-fade-in">
-            <h1 class="text-4xl md:text-5xl font-bold text-center mb-12 text-seed-dark-green">Cultivating Thought Life
-            </h1>
-
-            <!-- Blog Categories/Tags (Simple filter example) -->
-            <div class="text-center mb-10">
-                <button
-                    class="blog-filter-btn bg-seed-medium-green text-seed-off-white px-6 py-2 rounded-full text-lg font-semibold mr-3 mb-3 hover:bg-seed-dark-green transition duration-300 shadow-md"
-                    data-category="all">All Topics</button>
-                <button
-                    class="blog-filter-btn bg-seed-light-olive text-seed-dark-green px-6 py-2 rounded-full text-lg font-semibold mr-3 mb-3 hover:bg-seed-medium-green hover:text-seed-off-white transition duration-300 shadow-md"
-                    data-category="Light & Stillness">Light & Stillness</button>
-                <button
-                    class="blog-filter-btn bg-seed-light-olive text-seed-dark-green px-6 py-2 rounded-full text-lg font-semibold mr-3 mb-3 hover:bg-seed-medium-green hover:text-seed-off-white transition duration-300 shadow-md"
-                    data-category="Movement & Grace">Movement & Grace</button>
-                <button
-                    class="blog-filter-btn bg-seed-light-olive text-seed-dark-green px-6 py-2 rounded-full text-lg font-semibold mb-3 hover:bg-seed-medium-green hover:text-seed-off-white transition duration-300 shadow-md"
-                    data-category="Transformation">Transformation</button>
-            </div>
-
-            <!-- Blog Post List -->
-            <div id="blog-post-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Blog posts will be injected here by JavaScript -->
-            </div>
-
-            <!-- Full Blog Post View (initially hidden) -->
-            <div id="full-blog-post"
-                class="hidden bg-seed-off-white p-8 rounded-3xl shadow-xl border-t-8 border-seed-medium-green max-w-4xl mx-auto my-12">
-                <button id="back-to-blog-list"
-                    class="text-seed-medium-green hover:text-seed-dark-green mb-6 text-lg font-medium flex items-center space-x-2 transition duration-300">
-                    <i class="fas fa-arrow-left"></i>
-                    <span>Back to all posts</span>
-                </button>
-                <h2 id="post-title" class="text-4xl font-bold mb-4 text-seed-dark-green"></h2>
-                <p class="text-seed-light-olive text-sm mb-6">
-                    <span id="post-date" class="mr-2"></span> | <span id="post-category"></span>
-                </p>
-                <div id="post-content" class="prose max-w-none text-seed-dark-green leading-relaxed text-lg">
-                    <!-- Article content will be injected here -->
-                </div>
-                <div class="mt-8 pt-6 border-t border-seed-pale-yellow text-center">
-                    <p class="text-lg italic text-seed-medium-green mb-4">
-                        Ready to deepen your meditation?
-                    </p>
-                    <a
-                        class="bg-seed-medium-green text-seed-off-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-seed-dark-green transition-all duration-300 shadow-lg"
-                        href="/app">
-                        Try this passage in Seed App
-                    </a>
-                </div>
-            </div>
-        </section>
 
         <!-- App Page Section (removed from landing page) -->
         <!-- Example App Page Section Buttons (for demonstration only) -->
