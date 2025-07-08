@@ -150,6 +150,11 @@
         .exercise-btn:hover {
             opacity: 0.8;
         }
+        /* Seed Planted button style */
+        #mark-complete-button {
+            background-color: #a3ad86 !important;
+            color: #f1f2a4 !important;
+        }
         .loader {
             border: 5px solid var(--accent-2);
             border-top: 5px solid var(--accent-1);
@@ -168,7 +173,7 @@
           bottom: 0;
           width: 100%;
           background-color: #264d3b;       /* match app green */
-          padding: 0.75rem 0;
+          padding: 1.5rem;
           display: flex;
           justify-content: center;
           gap: 1rem;
@@ -323,10 +328,10 @@
                     <!-- Seed Planted -->
                     <button
                       id="mark-complete-button"
-                      class="inline-flex items-center bg-seed-yellow text-seed-dark-green font-semibold px-4 py-2 rounded-md shadow-md hover:bg-seed-dark-green hover:text-seed-dark-green transition-colors duration-300 hidden"
+                      class="inline-flex items-center bg-seed-pale-yellow text-seed-light-olive font-semibold px-4 py-2 rounded-md shadow-md hover:bg-seed-dark-green hover:text-seed-dark-green transition-colors duration-300 hidden"
                     >
                       <img src="https://i.imgur.com/26XfGSP.png" alt="Seed Icon" class="w-5 h-5 mr-2">
-                      Seed Planted
+                      Completed
                     </button>
                 </div>
             </section>
@@ -433,8 +438,8 @@
 
     <!-- Drill Floating Footer (Word-by-Word) -->
     <div class="drill-footer" id="drill-footer" style="display: none;">
-      <button onclick="showPrevWord()">Previous</button>
-      <button onclick="showNextWord()">Next</button>
+      <button onclick="showPrevWord()">Previous Word</button>
+      <button onclick="showNextWord()">Next Word</button>
     </div>
 
     
@@ -630,6 +635,11 @@
             }
 
             if (mode === "first-letter") {
+                // Remove the drill footer if it exists, to hide navigation buttons
+                const existingFooter = document.querySelector(".drill-footer");
+                if (existingFooter) {
+                  existingFooter.remove();
+                }
                 // For each block (paragraph or div), process its child nodes, keeping tags and verse numbers
                 let html = "";
                 for (const block of blocks) {
@@ -843,6 +853,11 @@
                 // Hide the drill footer if present
                 const drillFooter = document.getElementById("drill-footer");
                 if (drillFooter) drillFooter.style.display = "none";
+                // Remove any leftover floating footer from word-by-word mode
+                const footer = document.querySelector(".drill-footer");
+                if (footer) {
+                  footer.remove();
+                }
                 // Keep previous logic (not updated for formatting)
                 let pos = 0;
                 const verseText = container.innerText.trim();
