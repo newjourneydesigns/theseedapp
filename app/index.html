@@ -446,9 +446,9 @@
             <span id="footer-app-version"></span>
         </div>
         <div class="footer-branding" style="margin-top: 2rem;">
-          <div style="text-align: center;">
+          <div style="align-items: center;"
             <a href="https://newjourneydesigns.co" target="_blank">
-              <img src="https://i.imgur.com/mIDddQA.png" alt="New Journey Designs Logo" style="max-width: 100px;">
+              <img src="https://i.imgur.com/mIDddQA.png" alt="New Journey Designs Logo" style="max-width: 50px;">
             </a>
           </div>
           <p style="margin-top: 0.5rem; text-align: center;">
@@ -470,20 +470,8 @@
       document.getElementById("footer-year").textContent = new Date().getFullYear();
     </script>
     <script type="module">
-        // === App Version Constant ===
-        const APP_VERSION = "2.3.0";
-        // --- Drill Helpers ---
-        let originalTodaysVersesHTML = "";   // keeps the untouched HTML so we can restore Full Passage view
-
-        // Insert version into menu and footer
-        document.addEventListener('DOMContentLoaded', () => {
-            // Side menu version
-            const menuVer = document.getElementById('app-version');
-            if (menuVer) menuVer.textContent = `v${APP_VERSION}`;
-            // Footer version
-            const footerVer = document.getElementById('footer-app-version');
-            if (footerVer) footerVer.textContent = `Seed App Version: v${APP_VERSION}`;
-        });
+      // --- Drill Helpers ---
+      let originalTodaysVersesHTML = "";   // keeps the untouched HTML so we can restore Full Passage view
 
         // Register Service Worker for PWA functionality
         if ('serviceWorker' in navigator) {
@@ -1585,4 +1573,13 @@
         }
       }
     });
+    </script>
+    </script>
+    <script type="module">
+      import version from './bump-version.js';
+      const versionEl = document.createElement('div');
+      versionEl.textContent = `Seed App Version: ${version}`;
+      versionEl.style.textAlign = 'center';
+      versionEl.style.marginTop = '1rem';
+      document.body.appendChild(versionEl);
     </script>
