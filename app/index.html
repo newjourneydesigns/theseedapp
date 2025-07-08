@@ -152,8 +152,8 @@
         }
         /* Seed Planted button style */
         #mark-complete-button {
-            background-color: #a3ad86 !important;
-            color: #f1f2a4 !important;
+            background-color: #34403A !important;
+            color: #94a37c !important;
         }
         .loader {
             border: 5px solid var(--accent-2);
@@ -338,7 +338,7 @@
                       class="inline-flex items-center bg-seed-pale-yellow text-seed-light-olive font-semibold px-4 py-2 rounded-md shadow-md hover:bg-seed-dark-green hover:text-seed-dark-green transition-colors duration-300 hidden"
                     >
                       <img src="https://i.imgur.com/26XfGSP.png" alt="Seed Icon" class="w-5 h-5 mr-2">
-                      Completed
+                      Completed Today
                     </button>
                 </div>
             </section>
@@ -580,6 +580,14 @@
         const closeInstallHintBtn = document.getElementById('close-install-hint-btn');
         const faqModal = document.getElementById('faq-modal');
         const faqCloseBtn = document.getElementById('faq-close-btn');
+
+        // --- Check for Updates Handler ---
+        if (checkForUpdatesBtn) {
+          checkForUpdatesBtn.addEventListener("click", function() {
+            // Force full reload from server, bypassing cache
+            window.location.reload(true);
+          });
+        }
 
         // App State
         let plan = {};
