@@ -239,8 +239,8 @@
                             <!-- Options will be populated by JS -->
                         </select>
                     </div>
-                    <div>
-                        <label for="custom-passage-input" class="block mb-1 text-sm font-medium">Or Paste Your Own Passage</label>
+                    <div id="custom-passage-container">
+                        <label for="custom-passage-input" class="block mb-1 text-sm font-medium">Paste Your Own Passage</label>
                         <textarea id="custom-passage-input" class="form-input" rows="4" placeholder="Paste your passage here..."></textarea>
                     </div>
                     <!-- Verse Range Inputs - Hidden by default -->
@@ -546,6 +546,7 @@
         const appContainer = document.getElementById('app-container');
         const loaderModal = document.getElementById('loader-modal');
         const passageSelect = document.getElementById('passage-select');
+        const customPassageInput = document.getElementById('custom-passage-input');
         const targetDateInput = document.getElementById('target-date-input');
         const startPlanButton = document.getElementById('start-plan-button');
         const setupError = document.getElementById('setup-error');
@@ -687,8 +688,8 @@
 
           // If it's a custom plan, render the custom passage
           if (planObj && planObj.custom && Array.isArray(planObj.verses)) {
-            // Set passage title
-            passageTitle.innerText = 'Custom Passage';
+            // Hide passageTitle (the h1) since we will show it in the reference link below
+            passageTitle.style.display = 'none';
             // Hide YouVersion link and translation
             youVersionLink.style.display = 'none';
             passageTranslationSpan.style.display = 'none';
@@ -697,19 +698,25 @@
             if (todaysVersesDisplay) {
               todaysVersesDisplay.innerHTML = planObj.verses.map(v => `<p>${v.text}</p>`).join('');
             }
-            // Reference link: just show 'Custom Passage' and no link
+            // Reference link: hide it entirely for custom plans
             const referenceLink = document.getElementById('reference-link');
             if (referenceLink) {
-              referenceLink.textContent = 'Custom Passage';
-              referenceLink.href = '#';
+              referenceLink.style.display = 'none';
             }
             return;
           }
 
           // Otherwise, normal logic for preloaded passages
           if (activePassage) {
-            updatePassageTitle(activePassage);
-            passageTitle.innerText = activePassage;
+            // For custom plans, do not show passageTitle or translation
+            if (planObj && planObj.custom) {
+              passageTitle.style.display = 'none';
+              youVersionLink.style.display = 'none';
+              passageTranslationSpan.style.display = 'none';
+            } else {
+              updatePassageTitle(activePassage);
+              passageTitle.innerText = activePassage;
+            }
           }
 
           // --- Reference Link Logic ---
@@ -1218,6 +1225,32 @@
             localStorage.setItem("memorizationPlan", JSON.stringify(plan));
             location.reload();
         });
+
+        // --- Hide custom passage container when a passage is selected from the dropdown ---
+        if (passageSelect) {
+          const customPassageContainer = document.getElementById('custom-passage-container');
+          function setCustomPassageVisibility(visible) {
+            if (customPassageContainer) {
+              customPassageContainer.style.display = visible ? '' : 'none';
+            }
+          }
+          passageSelect.addEventListener('change', function() {
+            setCustomPassageVisibility(passageSelect.value === 'CUSTOM_PASSAGE');
+          });
+          // Initial state on page load
+          document.addEventListener('DOMContentLoaded', function() {
+            setCustomPassageVisibility(passageSelect.value === 'CUSTOM_PASSAGE');
+          });
+          // --- Add Custom Passage option to the dropdown on page load ---
+          document.addEventListener('DOMContentLoaded', function() {
+            if (passageSelect && !passageSelect.querySelector('option[value="CUSTOM_PASSAGE"]')) {
+              const option = document.createElement('option');
+              option.value = 'CUSTOM_PASSAGE';
+              option.textContent = 'Custom Passage';
+              passageSelect.appendChild(option);
+            }
+          });
+        }
         
         // --- Show Undo Button if there is something to undo ---
         // On DOMContentLoaded, check if there are completedVerses and show Undo button if needed
