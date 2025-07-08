@@ -650,11 +650,6 @@
             }
 
             if (mode === "first-letter") {
-                // Remove the drill footer if it exists, to hide navigation buttons
-                const existingFooter = document.querySelector(".drill-footer");
-                if (existingFooter) {
-                  existingFooter.remove();
-                }
                 // For each block (paragraph or div), process its child nodes, keeping tags and verse numbers
                 let html = "";
                 for (const block of blocks) {
@@ -680,7 +675,12 @@
                                             const punct = trimmed.match(/[.,!?;:]+$/)?.[0] || "";
                                             // Use first letter of each word in the match, preserving all matched words (including those at start of a quote)
                                             const root = trimmed.match(/[a-zA-Z0-9’'-]+/g);
-                                            return root ? root.map(w => w[0]).join('') + punct : '';
+                                            // --- PATCH: Wrap each word in a span with data-full ---
+                                            return root
+                                              ? `<span class="fl-word" data-full="${trimmed.replace(/"/g, "&quot;")}">${root
+                                                    .map(w => w[0])
+                                                    .join("")}${punct}</span>`
+                                              : "";
                                         }).join(" ");
                                     } else if (inner.nodeType === Node.ELEMENT_NODE) {
                                         processed += inner.outerHTML;
@@ -699,7 +699,12 @@
                                 if (!trimmed) return "";
                                 const punct = trimmed.match(/[.,!?;:]+$/)?.[0] || "";
                                 const root = trimmed.match(/[a-zA-Z0-9’'-]+/g);
-                                return root ? root.map(w => w[0]).join('') + punct : '';
+                                // PATCH: Wrap each word in a span with data-full
+                                return root
+                                  ? `<span class="fl-word" data-full="${trimmed.replace(/"/g, "&quot;")}">${root
+                                        .map(w => w[0])
+                                        .join("")}${punct}</span>`
+                                  : "";
                             }).join(" ");
                             // Preserve spacing (if present at end)
                             if (node.textContent.match(/\s+$/)) blockHtml += " ";
@@ -711,6 +716,42 @@
                     html += `<${tag}${attrs ? " " + attrs : ""}>${blockHtml.trim()}</${tag}>`;
                 }
                 container.innerHTML = html;
+                // --- PATCH: Add first-letter navigation logic ---
+                const flWords = Array.from(container.querySelectorAll(".fl-word"));
+                let flIdx = -1;
+
+                function renderFirstLetterState() {
+                  flWords.forEach((sp, i) => {
+                    if (i <= flIdx) {
+                      sp.textContent = sp.dataset.full;
+                    } else {
+                      const full = sp.dataset.full;
+                      const punct = full.match(/[.,!?;:]+$/)?.[0] || "";
+                      const root = full.match(/[a-zA-Z0-9’'-]+/g) || [full];
+                      sp.textContent = root.map(w => w[0]).join("") + punct;
+                    }
+                  });
+                }
+
+                function updateFirstLetter(delta) {
+                  if (delta !== 0) {
+                    if (flIdx === -1) flIdx = 0;
+                    else {
+                      flIdx += delta;
+                      if (flIdx < 0) flIdx = 0;
+                      if (flIdx >= flWords.length) flIdx = flWords.length - 1;
+                    }
+                  }
+                  renderFirstLetterState();
+                }
+
+                window.showPrevWord = () => updateFirstLetter(-1);
+                window.showNextWord = () => updateFirstLetter(1);
+
+                const drillFooter = document.getElementById("drill-footer");
+                if (drillFooter) drillFooter.style.display = "flex";
+
+                renderFirstLetterState();
                 return;
             }
 
@@ -832,6 +873,8 @@
                         // Rebuild this block with same tag, classes, and processed innerHTML
                         const tag = block.tagName.toLowerCase();
                         const attrs = Array.from(block.attributes).map(a => `${a.name}="${a.value}"`).join(" ");
+                        const isVerse = block.tagName.toLowerCase() === "verse";
+                        if (isVerse) block.innerHTML += " ";
                         html += `<${tag}${attrs ? " " + attrs : ""}>${blockHtml.trim()}</${tag}>`;
                     }
                     // Set the container HTML; navigation buttons are handled elsewhere (floating drill-footer)
@@ -842,16 +885,20 @@
 
                 // Navigation logic
                 function updateAndRender(delta) {
-                    // Filter out verse number elements from navigation
                     const total = realWordIndices.length;
 
-                    // If we're just starting, set to the first real word index
-                    if (idx === -1) {
-                      idx = 0;
-                    } else {
-                      idx += delta;
-                      if (idx < 0) idx = 0;
-                      if (idx >= total) idx = total - 1;
+                    /* 
+                       Start with nothing revealed. 
+                       Only advance idx when the caller supplies a non‑zero delta (i.e. user clicked a nav button).
+                    */
+                    if (delta !== 0) {
+                      if (idx === -1) {
+                        idx = 0;            // first real word
+                      } else {
+                        idx += delta;
+                        if (idx < 0) idx = 0;
+                        if (idx >= total) idx = total - 1;
+                      }
                     }
 
                     const wordIndex = realWordIndices[idx];
@@ -881,7 +928,7 @@
                   footer.remove();
                 }
                 // Keep previous logic (not updated for formatting)
-                let pos = 0;
+                let pos = -1;
                 const verseText = container.innerText.trim();
                 const words = verseText.split(/\s+/);
                 // Build a list of indices for non-verse-number words
@@ -957,6 +1004,14 @@
             location.reload();
           });
         }
+
+        // --- Mark Complete Button Handler ---
+        markCompleteButton.addEventListener("click", () => {
+          // Hide the word-drill navigation footer when marking complete
+          const drillFooter = document.getElementById("drill-footer");
+          if (drillFooter) drillFooter.style.display = "none";
+          // ... rest of mark complete logic (not shown here) ...
+        });
 
         // --- Plan Setup: Start Plan Button Handler ---
         startPlanButton.addEventListener("click", () => {
