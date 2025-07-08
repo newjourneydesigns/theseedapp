@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta name="theme-color" content="#34403a">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -188,6 +188,13 @@
           border-radius: 0.5rem;
           border: none;
         }
+</style>
+
+    <style>
+      button {
+        touch-action: manipulation;
+        user-select: none;
+      }
 </style>
 
     <!-- Google tag (gtag.js) -->
@@ -827,6 +834,7 @@
 
                 // Navigation logic
                 function updateAndRender(delta) {
+                    // Filter out verse number elements from navigation
                     const total = realWordIndices.length;
 
                     // If we're just starting, set to the first real word index
@@ -842,8 +850,14 @@
                     renderWordByWord(wordIndex);
                 }
                 // Expose global navigation functions for footer buttons
-                window.showPrevWord = function() { updateAndRender(-1); };
-                window.showNextWord = function() { updateAndRender(1); };
+                window.showPrevWord = function() {
+                  // Only count non-verse-number words for navigation
+                  updateAndRender(-1);
+                };
+                window.showNextWord = function() {
+                  // Only count non-verse-number words for navigation
+                  updateAndRender(1);
+                };
                 // Initial render
                 updateAndRender(0);
                 return;
@@ -862,6 +876,16 @@
                 let pos = 0;
                 const verseText = container.innerText.trim();
                 const words = verseText.split(/\s+/);
+                // Build a list of indices for non-verse-number words
+                const nonVerseWordIndices = [];
+                for (let i = 0; i < words.length; i++) {
+                  // Check if this word is a verse number by class as well (if available)
+                  // But in this plain text mode, just use regex
+                  if (!/^\d+$/.test(words[i])) {
+                    nonVerseWordIndices.push(i);
+                  }
+                }
+                let nonVersePos = 0; // index in nonVerseWordIndices
                 container.innerHTML = `
                     <p id="typing-prompt" class="text-lg font-semibold mb-2"></p>
                     <input id="typing-input" class="w-full p-2 rounded form-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Type the first letter & press Enter"/>
@@ -873,16 +897,18 @@
 
                 const isVerseNumber = w => /^\d+$/.test(w);
                 const advance = () => {
-                    while (pos < words.length && isVerseNumber(words[pos])) pos++; // skip verse #s
-                    if (pos >= words.length) { prompt.textContent = "✅ Done!"; input.disabled = true; return; }
-                    prompt.textContent = words[pos];
+                    // Skip any verse number words
+                    while (nonVersePos < nonVerseWordIndices.length && isVerseNumber(words[nonVerseWordIndices[nonVersePos]])) nonVersePos++;
+                    if (nonVersePos >= nonVerseWordIndices.length) { prompt.textContent = "✅ Done!"; input.disabled = true; return; }
+                    prompt.textContent = words[nonVerseWordIndices[nonVersePos]];
                 };
                 input.addEventListener("keydown", e => {
                     if (e.key !== "Enter") return;
                     e.preventDefault();
-                    const current = words[pos].replace(/[.,!?;:]+$/, "");
+                    const idx = nonVerseWordIndices[nonVersePos];
+                    const current = words[idx].replace(/[.,!?;:]+$/, "");
                     if (input.value.trim().toLowerCase() === current.charAt(0).toLowerCase()) {
-                        pos++; input.value = ""; advance();
+                        nonVersePos++; input.value = ""; advance();
                     }
                 });
                 fullBtn.onclick = () => openFHExercise("full-passage");
