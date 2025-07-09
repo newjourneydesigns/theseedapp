@@ -1873,6 +1873,10 @@
           const playIcon = document.getElementById('listen-play-icon');
           const pauseIcon = document.getElementById('listen-pause-icon');
 
+          // Default: show play icon, hide pause icon (listen controls stopped)
+          if (playIcon) playIcon.style.display = '';
+          if (pauseIcon) pauseIcon.style.display = 'none';
+
           function getListenText() {
             const container = document.getElementById('todays-verses-display');
             if (!container) return '';
