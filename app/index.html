@@ -172,7 +172,7 @@
           position: fixed;
           bottom: 0;
           width: 100%;
-          background-color: #264d3b;       /* match app green */
+          background-color: #34403a; /* dark green */
           padding: 1.5rem;
           display: flex;
           justify-content: center;
@@ -1353,8 +1353,8 @@ Done For Today
                 if ('speechSynthesis' in window) {
                   window.speechSynthesis.cancel(); // Stop any previous
                   const utter = new window.SpeechSynthesisUtterance(text);
-                  utter.rate = 0.58; // Even slower for clarity
-                  utter.pitch = 1;
+                  utter.rate = 0.57; // Even slower for clarity
+                  utter.pitch = 4;
                   utter.volume = 1;
                   // Try to use a pleasant English voice
                   const voices = window.speechSynthesis.getVoices();
