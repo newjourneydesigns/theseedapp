@@ -402,6 +402,15 @@
                 <button id="side-menu-close-button" class="text-2xl">&times;</button>
             </div>
             <ul class="space-y-2">
+                <li>
+                  <label for="verse-text-size-select" class="block mb-1 text-sm font-medium">Verse Text Size</label>
+                  <select id="verse-text-size-select" class="form-input" style="max-width: 140px;">
+                    <option value="sm">Small</option>
+                    <option value="base">Normal</option>
+                    <option value="lg">Large</option>
+                    <option value="xl">Extra Large</option>
+                  </select>
+                </li>
                 <li><a href="../index.html" class="block w-full text-left p-2 rounded hover:bg-gray-700/50">Go To Home Page</a></li>
                 <li><button id="share-plan-btn" class="w-full text-left p-2 rounded hover:bg-gray-700/50">Share My Plan</button></li>
                 <li><button id="share-app-btn" class="w-full text-left p-2 rounded hover:bg-gray-700/50">Share The App</button></li>
@@ -499,6 +508,11 @@
         </div>
    </footer>
     <style>
+      /* Verse text size utility classes */
+      .verse-text-sm { font-size: 0.95rem !important; }
+      .verse-text-base { font-size: 1.15rem !important; }
+      .verse-text-lg { font-size: 1.35rem !important; }
+      .verse-text-xl { font-size: 1.6rem !important; }
       button {
         touch-action: manipulation;
         user-select: none;
@@ -799,6 +813,54 @@
       document.getElementById("footer-year").textContent = new Date().getFullYear();
     </script>
     <script type="module">
+      // --- Verse Text Size Control ---
+      document.addEventListener('DOMContentLoaded', function() {
+        const sizeSelect = document.getElementById('verse-text-size-select');
+        const versesDisplay = document.getElementById('todays-verses-display');
+        // Helper: apply class to verse display
+        function applyVerseTextSize(size) {
+          if (!versesDisplay) return;
+          versesDisplay.classList.remove('verse-text-sm', 'verse-text-base', 'verse-text-lg', 'verse-text-xl');
+          if (size === 'sm') versesDisplay.classList.add('verse-text-sm');
+          else if (size === 'base') versesDisplay.classList.add('verse-text-base');
+          else if (size === 'lg') versesDisplay.classList.add('verse-text-lg');
+          else if (size === 'xl') versesDisplay.classList.add('verse-text-xl');
+        }
+        // Load from localStorage
+        let savedSize = localStorage.getItem('verseTextSize') || 'base';
+        if (sizeSelect) sizeSelect.value = savedSize;
+        applyVerseTextSize(savedSize);
+        // Listen for changes
+        if (sizeSelect) {
+          sizeSelect.addEventListener('change', function(e) {
+            const val = e.target.value;
+            localStorage.setItem('verseTextSize', val);
+            applyVerseTextSize(val);
+          });
+        }
+      });
+
+      // Style the Verse Text Size select to match the Reset Plan button
+      document.addEventListener('DOMContentLoaded', function() {
+        const sizeSelect = document.getElementById('verse-text-size-select');
+        const resetBtn = document.getElementById('reset-plan-btn');
+        if (sizeSelect && resetBtn) {
+          // Copy computed styles from resetBtn to sizeSelect
+          const btnStyles = window.getComputedStyle(resetBtn);
+          sizeSelect.style.height = btnStyles.height;
+          sizeSelect.style.width = btnStyles.width;
+          sizeSelect.style.minWidth = btnStyles.minWidth;
+          sizeSelect.style.maxWidth = btnStyles.maxWidth;
+          sizeSelect.style.fontSize = btnStyles.fontSize;
+          sizeSelect.style.padding = btnStyles.padding;
+          sizeSelect.style.borderRadius = btnStyles.borderRadius;
+          sizeSelect.style.background = btnStyles.background;
+          sizeSelect.style.backgroundColor = btnStyles.backgroundColor;
+          sizeSelect.style.color = btnStyles.color;
+          sizeSelect.style.boxShadow = btnStyles.boxShadow;
+          sizeSelect.style.border = btnStyles.border;
+        }
+      });
       // --- Inline Target Date Change Logic ---
       document.addEventListener('DOMContentLoaded', function() {
         const targetDateDisplay = document.getElementById('target-date-display');
@@ -1154,6 +1216,15 @@
                   // Remove empty phrases
                   return phrases.filter(p => p.trim() !== "");
                 }
+                // --- Get current verse text size class ---
+                function getVerseTextSizeClass() {
+                  const size = localStorage.getItem('verseTextSize') || 'base';
+                  if (size === 'sm') return 'verse-text-sm';
+                  if (size === 'base') return 'verse-text-base';
+                  if (size === 'lg') return 'verse-text-lg';
+                  if (size === 'xl') return 'verse-text-xl';
+                  return '';
+                }
                 // Flatten all phrases and keep their positions
                 let blockPhraseMaps = [];
                 let totalPhrases = 0;
@@ -1207,7 +1278,8 @@
                     html += `<${tag}${attrs ? " " + attrs : ""}>${blockHtml.trim()}</${tag}>`;
                   }
                   let container = document.getElementById("todays-verses-display");
-                  container.innerHTML = `<div id=\"phrase-drill\" class=\"text-base md:text-lg leading-relaxed mb-4\">${html}</div>`;
+                  const verseTextSizeClass = getVerseTextSizeClass();
+                  container.innerHTML = `<div id=\"phrase-drill\" class=\"${verseTextSizeClass} text-base md:text-lg leading-relaxed mb-4\">${html}</div>`;
                 }
                 function updateAndRenderPhrase(delta) {
                   if (delta !== 0) {
@@ -1221,6 +1293,19 @@
                 window.showNextWord = function() { updateAndRenderPhrase(1); };
                 // Initial render
                 renderPhraseByPhrase();
+                // PATCH: Listen for verse text size changes and re-render
+                window.addEventListener('storage', function(e) {
+                  if (e.key === 'verseTextSize') {
+                    renderPhraseByPhrase();
+                  }
+                });
+                // Also listen for changes to the select in this tab
+                const sizeSelect = document.getElementById('verse-text-size-select');
+                if (sizeSelect) {
+                  sizeSelect.addEventListener('change', function() {
+                    renderPhraseByPhrase();
+                  });
+                }
                 return;
             }
             container = document.getElementById("todays-verses-display");
@@ -1447,6 +1532,16 @@
                 // Start idx at 0, but we want to skip revealing the verse number block, so initial idx = -1 (nothing), 0 = first real word
                 let idx = -1; // how many real words to show (starts before the first word)
 
+                // --- Get current verse text size class ---
+                function getVerseTextSizeClass() {
+                  const size = localStorage.getItem('verseTextSize') || 'base';
+                  if (size === 'sm') return 'verse-text-sm';
+                  if (size === 'base') return 'verse-text-base';
+                  if (size === 'lg') return 'verse-text-lg';
+                  if (size === 'xl') return 'verse-text-xl';
+                  return '';
+                }
+
                 // Render function: reconstruct the HTML with revealed words
                 function renderWordByWord() {
                     // For each block, reconstruct its innerHTML
@@ -1494,24 +1589,20 @@
                         // Rebuild this block with same tag, classes, and processed innerHTML
                         const tag = block.tagName.toLowerCase();
                         const attrs = Array.from(block.attributes).map(a => `${a.name}="${a.value}"`).join(" ");
-                        const isVerse = block.tagName.toLowerCase() === "verse";
-                        if (isVerse) block.innerHTML += " ";
+                        const verseTextSizeClass = getVerseTextSizeClass();
                         html += `<${tag}${attrs ? " " + attrs : ""}>${blockHtml.trim()}</${tag}>`;
                     }
                     // Set the container HTML; navigation buttons are handled elsewhere (floating drill-footer)
+                    // PATCH: Add verse text size class dynamically
+                    const verseTextSizeClass = getVerseTextSizeClass();
                     container.innerHTML = `
-                        <div id="word-drill" class="text-base md:text-lg leading-relaxed mb-4">${html}</div>
+                        <div id="word-drill" class="${verseTextSizeClass} text-base md:text-lg leading-relaxed mb-4">${html}</div>
                     `;
                 }
 
                 // Navigation logic
                 function updateAndRender(delta) {
                     const total = realWordIndices.length;
-
-                    /* 
-                       Start with nothing revealed. 
-                       Only advance idx when the caller supplies a non‑zero delta (i.e. user clicked a nav button).
-                    */
                     if (delta !== 0) {
                       if (idx === -1) {
                         idx = 0;            // first real word
@@ -1521,21 +1612,32 @@
                         if (idx >= total) idx = total - 1;
                       }
                     }
-
-                    const wordIndex = realWordIndices[idx];
-                    renderWordByWord(wordIndex);
+                    renderWordByWord();
                 }
                 // Expose global navigation functions for footer buttons
                 window.showPrevWord = function() {
-                  // Only count non-verse-number words for navigation
                   updateAndRender(-1);
                 };
                 window.showNextWord = function() {
-                  // Only count non-verse-number words for navigation
                   updateAndRender(1);
                 };
                 // Initial render
                 updateAndRender(0);
+
+                // PATCH: Listen for verse text size changes and re-render
+                window.addEventListener('storage', function(e) {
+                  if (e.key === 'verseTextSize') {
+                    renderWordByWord();
+                  }
+                });
+                // Also listen for changes to the select in this tab
+                const sizeSelect = document.getElementById('verse-text-size-select');
+                if (sizeSelect) {
+                  sizeSelect.addEventListener('change', function() {
+                    renderWordByWord();
+                  });
+                }
+
                 return;
             }
 
