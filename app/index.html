@@ -329,6 +329,9 @@
                     <button id="exercise-word-by-word" class="exercise-btn inline-flex items-center font-semibold px-4 py-2 rounded-md shadow-md transition-colors duration-200" style="background-color: var(--accent-1); color: var(--primary-bg);">
                         Word&nbsp;by&nbsp;Word
                     </button>
+                    <button id="exercise-phrase-by-phrase" class="exercise-btn inline-flex items-center font-semibold px-4 py-2 rounded-md shadow-md transition-colors duration-200" style="background-color: var(--accent-1); color: var(--primary-bg);">
+                        Phrase&nbsp;by&nbsp;Phrase
+                    </button>
                     <button id="exercise-full-passage" class="exercise-btn inline-flex items-center font-semibold px-4 py-2 rounded-md shadow-md transition-colors duration-200" style="background-color: var(--accent-1); color: var(--primary-bg);">
                         Full&nbsp;Passage
                     </button>
@@ -343,7 +346,7 @@
                       class="inline-flex items-center bg-seed-pale-yellow text-seed-light-olive font-semibold px-4 py-2 rounded-md shadow-md hover:bg-seed-dark-green hover:text-seed-dark-green transition-colors duration-300 hidden"
                     >
                       <img src="https://i.imgur.com/26XfGSP.png" alt="Seed Icon" class="w-5 h-5 mr-2">
-                      Completed Today
+Done For Today
                     </button>
                 </div>
             </section>
@@ -484,8 +487,8 @@
 
     <!-- Drill Floating Footer (Word-by-Word) -->
     <div class="drill-footer" id="drill-footer" style="display: none;">
-      <button onclick="showPrevWord()">Previous Word</button>
-      <button onclick="showNextWord()">Next Word</button>
+      <button onclick="showPrevWord()">Previous</button>
+      <button onclick="showNextWord()">Next</button>
     </div>
 
     <script>
@@ -790,7 +793,107 @@
          *    type-first-letter  – user types first letters
          */
         function openFHExercise(mode) {
-            const container = document.getElementById("todays-verses-display");
+            // Always set originalTodaysVersesHTML if not set, so all drills work independently
+            let container = document.getElementById("todays-verses-display");
+            if (!originalTodaysVersesHTML && container) {
+                originalTodaysVersesHTML = container.innerHTML;
+            }
+            if (mode === "phrase-by-phrase") {
+                // Show the drill footer for navigation
+                const drillFooter = document.getElementById("drill-footer");
+                if (drillFooter) drillFooter.style.display = "flex";
+                // Parse the original HTML into phrases
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(originalTodaysVersesHTML, "text/html");
+                const blocks = Array.from(doc.body.children);
+                // Helper: split a verse into phrases (by comma, semicolon, period, em dash, or end)
+                function splitPhrases(text) {
+                  if (!text) return [];
+                  // Split at punctuation, keep delimiter with phrase
+                  const phrases = text.split(/([,;.!—?!]+\s*)/g)
+                    .reduce((acc, cur, i, arr) => {
+                      if (i % 2 === 0) {
+                        // Even index: phrase
+                        if (cur && cur.trim() !== "") acc.push(cur);
+                      } else {
+                        // Odd index: delimiter
+                        if (acc.length > 0) acc[acc.length - 1] += cur;
+                      }
+                      return acc;
+                    }, []);
+                  // Remove empty phrases
+                  return phrases.filter(p => p.trim() !== "");
+                }
+                // Flatten all phrases and keep their positions
+                let blockPhraseMaps = [];
+                let totalPhrases = 0;
+                for (let b = 0; b < blocks.length; ++b) {
+                  const block = blocks[b];
+                  let nodePhraseMap = [];
+                  block.childNodes.forEach(node => {
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                      // If it's a span or similar, treat as text
+                      const text = node.textContent;
+                      const phrases = splitPhrases(text);
+                      phrases.forEach((phrase, i) => {
+                        nodePhraseMap.push({ node, phrase, isPhrase: true });
+                        totalPhrases++;
+                      });
+                    } else if (node.nodeType === Node.TEXT_NODE) {
+                      const text = node.textContent;
+                      const phrases = splitPhrases(text);
+                      phrases.forEach((phrase, i) => {
+                        nodePhraseMap.push({ node, phrase, isPhrase: true });
+                        totalPhrases++;
+                      });
+                    }
+                  });
+                  blockPhraseMaps.push(nodePhraseMap);
+                }
+                let idx = -1; // how many phrases to show (starts at -1, so all are hidden initially)
+                function renderPhraseByPhrase() {
+                  // For each block, reconstruct its innerHTML
+                  let html = "";
+                  let phraseCount = 0;
+                  for (let b = 0; b < blocks.length; ++b) {
+                    const block = blocks[b];
+                    let blockHtml = "";
+                    let nodePhraseMap = blockPhraseMaps[b];
+                    for (let p = 0; p < nodePhraseMap.length; ++p) {
+                      const phraseObj = nodePhraseMap[p];
+                      // Show verse numbers always (if phrase is all digits)
+                      if (/^\d+$/.test(phraseObj.phrase.trim())) {
+                        blockHtml += `<span class=\"pbp-verse-number\">${phraseObj.phrase}</span>`;
+                      } else if (phraseCount <= idx) {
+                        blockHtml += `<span class=\"pbp-phrase\">${phraseObj.phrase}</span>`;
+                        phraseCount++;
+                      } else {
+                        blockHtml += `<span class=\"pbp-phrase pbp-hidden\"></span>`;
+                        phraseCount++;
+                      }
+                    }
+                    const tag = block.tagName.toLowerCase();
+                    const attrs = Array.from(block.attributes).map(a => `${a.name}=\"${a.value}\"`).join(" ");
+                    html += `<${tag}${attrs ? " " + attrs : ""}>${blockHtml.trim()}</${tag}>`;
+                  }
+                  let container = document.getElementById("todays-verses-display");
+                  container.innerHTML = `<div id=\"phrase-drill\" class=\"text-base md:text-lg leading-relaxed mb-4\">${html}</div>`;
+                }
+                function updateAndRenderPhrase(delta) {
+                  if (delta !== 0) {
+                    idx += delta;
+                    if (idx < -1) idx = -1;
+                    if (idx >= totalPhrases) idx = totalPhrases - 1;
+                  }
+                  renderPhraseByPhrase();
+                }
+                window.showPrevWord = function() { updateAndRenderPhrase(-1); };
+                window.showNextWord = function() { updateAndRenderPhrase(1); };
+                // Initial render
+                renderPhraseByPhrase();
+                return;
+            }
+            container = document.getElementById("todays-verses-display");
             if (!container) return;
 
             // Save baseline HTML the first time we run a drill
@@ -1165,11 +1268,13 @@
           setTimeout(() => {
             const firstBtn = document.getElementById('exercise-first-letters');
             const wordBtn = document.getElementById('exercise-word-by-word');
+            const phraseBtn = document.getElementById('exercise-phrase-by-phrase');
             const fullBtn = document.getElementById("exercise-full-passage");
 
-            if (firstBtn && wordBtn) {
+            if (firstBtn && wordBtn && phraseBtn) {
               firstBtn.addEventListener('click', () => openFHExercise('first-letter'));
               wordBtn.addEventListener('click', () => openFHExercise('word-by-word'));
+              phraseBtn.addEventListener('click', () => openFHExercise('phrase-by-phrase'));
             } else {
               console.warn('Exercise buttons not available on load. Retrying in 500ms...');
             }
