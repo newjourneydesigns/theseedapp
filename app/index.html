@@ -313,8 +313,10 @@
                     <img src="https://i.imgur.com/eF4vmiG.png" alt="Seed Logo" class="h-8 rounded-md">
                 </button>
                 <h1 id="passage-title" class="flex-grow text-xl md:text-2xl font-bold text-right mx-4">
-                    <a id="youversion-link" href="#" target="_blank" rel="noopener noreferrer" class="font-bold text-xl md:text-2xl underline hover:opacity-80" style="color:inherit;"></a>
-                    <span id="passage-translation" class="text-base opacity-75"></span>
+    <span id="passage-link-wrapper" style="display:inline-flex;align-items:center;gap:0.5em;">
+      <button id="youversion-link-btn" type="button" class="font-bold text-xl md:text-2xl underline hover:opacity-80 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-accent-1 transition" style="background:transparent;border:none;cursor:pointer;color:inherit;"></button>
+      <span id="passage-translation" class="text-base opacity-75"></span>
+    </span>
                 </h1>
             </header>
 
@@ -1236,28 +1238,23 @@
           // Otherwise, normal logic for preloaded passages
           if (activePassage) {
             // For custom plans, do not show passageTitle or translation
+            const youVersionLinkBtn = document.getElementById('youversion-link-btn');
             if (planObj && planObj.custom) {
               passageTitle.style.display = 'none';
-              youVersionLink.style.display = 'none';
+              if (youVersionLinkBtn) youVersionLinkBtn.style.display = 'none';
               passageTranslationSpan.style.display = 'none';
             } else {
               updatePassageTitle(activePassage);
-              // Make the passage title a working link to YouVersion
-              if (activePassage !== 'Custom Passage') {
-                // Set the link text to the passage name
+              if (activePassage !== 'Custom Passage' && youVersionLinkBtn) {
                 const passage = preloadedPassages[activePassage];
-                if (passage) {
-                  youVersionLink.textContent = passage.name;
-                  let formattedReference = passage.name.replace(/\s+/g, '').replace(':', '.').replace('–', '-');
-                  youVersionLink.href = `https://www.bible.com/bible/111/${formattedReference}`;
-                  youVersionLink.style.display = '';
-                  youVersionLink.target = '_blank';
-                  youVersionLink.rel = 'noopener noreferrer';
-                } else {
-                  youVersionLink.textContent = activePassage;
-                  youVersionLink.href = '#';
-                  youVersionLink.style.display = '';
-                }
+                let passageName = passage ? passage.name : activePassage;
+                let formattedReference = passageName.replace(/\s+/g, '').replace(':', '.').replace('–', '-');
+                let url = `https://www.bible.com/bible/111/${formattedReference}`;
+                youVersionLinkBtn.textContent = passageName;
+                youVersionLinkBtn.style.display = '';
+                youVersionLinkBtn.onclick = function() {
+                  window.open(url, '_blank', 'noopener');
+                };
               }
             }
           }
