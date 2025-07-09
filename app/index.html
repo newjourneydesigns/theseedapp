@@ -1270,6 +1270,22 @@ Done For Today
             const wordBtn = document.getElementById('exercise-word-by-word');
             const phraseBtn = document.getElementById('exercise-phrase-by-phrase');
             const fullBtn = document.getElementById("exercise-full-passage");
+            // --- Listen Drill Button ---
+            let listenBtn = document.getElementById('exercise-listen');
+            if (!listenBtn) {
+              listenBtn = document.createElement('button');
+              listenBtn.id = 'exercise-listen';
+              listenBtn.className = 'exercise-btn px-4 py-2 rounded-md shadow-md transition-colors duration-200';
+              listenBtn.style.backgroundColor = 'var(--accent-2)';
+              listenBtn.style.color = 'var(--primary-bg)';
+              listenBtn.innerHTML = '<span>Listen</span> <svg style="width:1em;height:1em;vertical-align:middle;margin-left:0.25em;" viewBox="0 0 24 24"><path fill="currentColor" d="M12 3a9 9 0 0 1 9 9h-2a7 7 0 0 0-14 0H3a9 9 0 0 1 9-9m0 2a7 7 0 0 0-7 7h2a5 5 0 0 1 10 0h2a7 7 0 0 0-7-7m0 4a3 3 0 0 1 3 3h-2a1 1 0 0 0-2 0h-2a3 3 0 0 1 3-3m0 2a1 1 0 0 0-1 1h2a1 1 0 0 0-1-1m-1 4v2h2v-2h-2m0 4v2h2v-2h-2z"/></svg>';
+              // Insert after phraseBtn if present, else after wordBtn
+              if (phraseBtn && phraseBtn.parentNode) {
+                phraseBtn.parentNode.insertBefore(listenBtn, phraseBtn.nextSibling);
+              } else if (wordBtn && wordBtn.parentNode) {
+                wordBtn.parentNode.insertBefore(listenBtn, wordBtn.nextSibling);
+              }
+            }
 
             if (firstBtn && wordBtn && phraseBtn) {
               firstBtn.addEventListener('click', () => openFHExercise('first-letter'));
@@ -1279,6 +1295,39 @@ Done For Today
               console.warn('Exercise buttons not available on load. Retrying in 500ms...');
             }
             if (fullBtn) fullBtn.addEventListener("click", () => openFHExercise("full-passage"));
+
+            // Listen Drill logic
+            if (listenBtn) {
+              listenBtn.addEventListener('click', () => {
+                const container = document.getElementById('todays-verses-display');
+                if (!container) return;
+                // Get all text content (strip tags, keep verse numbers)
+                let text = '';
+                // If the container has paragraphs, join them with a pause
+                const blocks = Array.from(container.children);
+                if (blocks.length > 0) {
+                  text = blocks.map(b => b.textContent.trim()).join('. ');
+                } else {
+                  text = container.textContent.trim();
+                }
+                if (!text) return;
+                // Use Web Speech API
+                if ('speechSynthesis' in window) {
+                  window.speechSynthesis.cancel(); // Stop any previous
+                  const utter = new window.SpeechSynthesisUtterance(text);
+                  utter.rate = 0.97; // Slightly slower for clarity
+                  utter.pitch = 1;
+                  utter.volume = 1;
+                  // Try to use a pleasant English voice
+                  const voices = window.speechSynthesis.getVoices();
+                  const enVoices = voices.filter(v => v.lang && v.lang.startsWith('en'));
+                  if (enVoices.length > 0) utter.voice = enVoices[0];
+                  window.speechSynthesis.speak(utter);
+                } else {
+                  alert('Sorry, your browser does not support text-to-speech.');
+                }
+              });
+            }
           }, 500);
         });
 
