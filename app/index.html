@@ -1275,8 +1275,8 @@ Done For Today
             if (!listenBtn) {
               listenBtn = document.createElement('button');
               listenBtn.id = 'exercise-listen';
-              listenBtn.className = 'exercise-btn px-4 py-2 rounded-md shadow-md transition-colors duration-200';
-              listenBtn.style.backgroundColor = 'var(--accent-2)';
+              listenBtn.className = 'exercise-btn inline-flex items-center font-semibold px-4 py-2 rounded-md shadow-md transition-colors duration-200';
+              listenBtn.style.backgroundColor = 'var(--accent-1)';
               listenBtn.style.color = 'var(--primary-bg)';
               listenBtn.textContent = 'Listen';
               // Insert after phraseBtn if present, else after wordBtn
@@ -1354,7 +1354,7 @@ Done For Today
                   window.speechSynthesis.cancel(); // Stop any previous
                   const utter = new window.SpeechSynthesisUtterance(text);
                   utter.rate = 0.57; // Even slower for clarity
-                  utter.pitch = 4;
+                  utter.pitch = 1;
                   utter.volume = 1;
                   // Try to use a pleasant English voice
                   const voices = window.speechSynthesis.getVoices();
