@@ -1176,28 +1176,6 @@
 
           // If it's a custom plan, render the custom passage and show progress info
           if (planObj && planObj.custom && Array.isArray(planObj.verses)) {
-            // Hide passageTitle (the h1) and all passage info for custom plans
-            passageTitle.style.display = 'none';
-            youVersionLink.style.display = 'none';
-            passageTranslationSpan.style.display = 'none';
-            // Hide the reference link for custom plans
-            const referenceLink = document.getElementById('reference-link');
-            if (referenceLink) {
-              referenceLink.style.display = 'none';
-            }
-            // Remove any text from the passage title and link for custom passage
-            youVersionLink.textContent = '';
-            passageTitle.textContent = '';
-            passageTranslationSpan.textContent = '';
-            // Remove 'Custom Passage' from the document title if present
-            if (document.title && document.title.includes('Custom Passage')) {
-              document.title = document.title.replace('Custom Passage', '').replace(/\s{2,}/g, ' ').trim();
-            }
-            // Remove 'Custom Passage' from the passageTitle's parent if present
-            const passageTitleParent = passageTitle && passageTitle.parentElement;
-            if (passageTitleParent && passageTitleParent.innerHTML.includes('Custom Passage')) {
-              passageTitleParent.innerHTML = passageTitleParent.innerHTML.replace('Custom Passage', '').replace(/\s{2,}/g, ' ').trim();
-            }
             // Render the verses in the display area only
             const todaysVersesDisplay = document.getElementById('todays-verses-display');
             if (todaysVersesDisplay) {
