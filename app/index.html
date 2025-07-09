@@ -371,10 +371,95 @@
                     <button
                       id="mark-complete-button"
                       class="inline-flex items-center bg-seed-pale-yellow text-seed-light-olive font-semibold px-4 py-2 rounded-md shadow-md hover:bg-seed-dark-green hover:text-seed-dark-green transition-colors duration-300 hidden"
+                      type="button"
                     >
                       <img src="https://i.imgur.com/26XfGSP.png" alt="Seed Icon" class="w-5 h-5 mr-2">
                       Done For Today
                     </button>
+    <!-- Done For Today Confirmation Modal -->
+    <div id="done-confirm-modal" class="modal hidden">
+      <div class="modal-content text-center max-w-xs mx-auto">
+        <h2 class="text-xl font-bold mb-4">Mark Today Complete?</h2>
+        <p class="mb-4">Are you sure you want to mark today as complete?</p>
+        <div class="flex justify-center gap-4 mt-6">
+          <button id="done-confirm-btn" class="font-bold py-2 px-6 rounded-lg" style="background-color: var(--accent-1); color: var(--primary-bg);">Done</button>
+          <button id="done-cancel-btn" class="font-bold py-2 px-6 rounded-lg bg-gray-300 text-gray-800">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <style>
+      /* Done For Today Confirmation Modal Styles */
+      #done-confirm-modal .modal-content {
+        background: var(--primary-bg, #fff);
+        border-radius: 18px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+        padding: 2rem 1.5rem 1.5rem 1.5rem;
+        max-width: 90vw;
+      }
+      #done-confirm-modal .modal-content button {
+        min-width: 90px;
+      }
+    </style>
+    <script type="module">
+      // --- Done For Today Confirmation Modal Logic ---
+      document.addEventListener('DOMContentLoaded', function() {
+        const markCompleteButton = document.getElementById('mark-complete-button');
+        const doneConfirmModal = document.getElementById('done-confirm-modal');
+        const doneConfirmBtn = document.getElementById('done-confirm-btn');
+        const doneCancelBtn = document.getElementById('done-cancel-btn');
+        if (markCompleteButton && doneConfirmModal && doneConfirmBtn && doneCancelBtn) {
+          // Always make the button visible
+          markCompleteButton.classList.remove('hidden');
+          markCompleteButton.style.display = '';
+
+          // Save the original mark complete handler (if any)
+          if (!window._markCompleteOriginal) {
+            // Try to find a handler attached via onclick
+            const oldHandler = markCompleteButton.onclick;
+            if (oldHandler) {
+              window._markCompleteOriginal = function() { oldHandler.call(markCompleteButton); };
+              markCompleteButton.onclick = null;
+            } else {
+              // Try to find a handler attached via addEventListener
+              // We'll try to simulate a click event
+              window._markCompleteOriginal = function() {
+                // Create a real click event
+                const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+                markCompleteButton.dispatchEvent(event);
+              };
+            }
+          }
+
+          // Remove all click handlers by replacing the button (but keep it visible)
+          const parent = markCompleteButton.parentNode;
+          const newBtn = markCompleteButton.cloneNode(true);
+          newBtn.classList.remove('hidden');
+          newBtn.style.display = '';
+          parent.replaceChild(newBtn, markCompleteButton);
+
+          // Only open the modal on click, do NOT mark complete
+          newBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            doneConfirmModal.classList.remove('hidden');
+            doneConfirmModal.style.display = 'block';
+          });
+          // Cancel button closes modal and does NOT mark complete
+          doneCancelBtn.addEventListener('click', function() {
+            doneConfirmModal.classList.add('hidden');
+            doneConfirmModal.style.display = '';
+          });
+          // Confirm button triggers original action ONLY
+          doneConfirmBtn.addEventListener('click', function() {
+            doneConfirmModal.classList.add('hidden');
+            doneConfirmModal.style.display = '';
+            // Actually mark complete (trigger original handler)
+            if (typeof window._markCompleteOriginal === 'function') {
+              window._markCompleteOriginal();
+            }
+          });
+        }
+      });
+    </script>
                     <button
                       id="undoCompleteButton"
                       class="inline-flex items-center bg-seed-pale-yellow text-seed-light-olive font-semibold px-4 py-2 rounded-md shadow-md hover:bg-seed-dark-green hover:text-seed-dark-green transition-colors duration-300 ml-2 hidden"
