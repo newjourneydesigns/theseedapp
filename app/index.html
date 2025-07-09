@@ -1238,7 +1238,55 @@
             "Genesis 1:28": { name: "Genesis 1:28", translation: "AMPC", verses: [{ verse: 28, text: `And God blessed them and said to them, Be fruitful, multiply, and fill the earth, and subdue it [using all its vast resources in the service of God and man]; and have dominion over the fish of the sea, the birds of the air, and over every living creature that moves upon the earth.` }] },
             "Psalm 23": { name: "Psalm 23", translation: "NIV84", verses: [{ verse: 1, text: `The LORD is my shepherd, I shall not be in want.` }, { verse: 2, text: `He makes me lie down in green pastures, he leads me beside quiet waters,` }, { verse: 3, text: `he restores my soul. He guides me in paths of righteousness for his name’s sake.` }, { verse: 4, text: `Even though I walk through the valley of the shadow of death, I will fear no evil, for you are with me; your rod and your staff, they comfort me.` }, { verse: 5, text: `You prepare a table before me in the presence of my enemies. You anoint my head with oil; my cup overflows.` }, { verse: 6, text: `Surely goodness and love will follow me all the days of my life, and I will dwell in the house of the LORD forever.` }] },
             "Psalm 27:1-6": { name: "Psalm 27:1–6", translation: "NIV11", verses: [{ verse: 1, text: `The LORD is my light and my salvation— whom shall I fear? The LORD is the stronghold of my life— of whom shall I be afraid?` }, { verse: 2, text: `When the wicked advance against me to devour me, it is my enemies and my foes who will stumble and fall.` }, { verse: 3, text: `Though an army besiege me, my heart will not fear; though war break out against me, even then I will be confident.` }, { verse: 4, text: `One thing I ask from the LORD, this only do I seek: that I may dwell in the house of the LORD all the days of my life, to gaze on the beauty of the LORD and to seek him in his temple.` }, { verse: 5, text: `For in the day of trouble he will keep me safe in his dwelling; he will hide me in the shelter of his sacred tent and set me high upon a rock.` }, { verse: 6, text: `Then my head will be exalted above the enemies who surround me; at his sacred tent I will sacrifice with shouts of joy; I will sing and make music to the LORD.` }] },
-            "Psalm 103:1-13": { name: "Psalm 103:1–13", translation: "NIV11", verses: [{ verse: 1, text: `Praise the LORD, my soul; all my inmost being, praise his holy name.` }, { verse: 2, text: `Praise the LORD, my soul, and forget not all his benefits—` }, { verse: 3, text: `who forgives all your sins and heals all your diseases,` }, { verse: 4, text: `who redeems your life from the pit and crowns you with love and compassion,` }, { verse: 5, text: `who satisfies your desires with good things so that your youth is renewed like the eagle’s.` }, { verse: 6, text: `The LORD works righteousness and justice for all the oppressed.` }, { verse: 7, text: `He made known his ways to Moses, his deeds to the people of Israel:` }, { verse: 8, text: `The LORD is compassionate and gracious, slow to anger, abounding in love.` }, { verse: 9, text: `He will not always accuse, nor will he harbor his anger forever;` }, { verse: 10, text: `he does not treat us as our sins deserve or repay us according to our iniquities.` }, { verse: 11, text: `For as high as the heavens are above the earth, so great is his love for those who fear him;` }, { verse: 12, text: `as far as the east is from the west, so far has he removed our transgressions from us.` }, { verse: 13, text: `As a father has compassion on his children, so the LORD has compassion on those who fear him;` }] },
+            // PATCH: Support both old and new keys for Psalm 103 for backward compatibility
+            "Psalm 103:1-13": {
+                name: "Psalm 103:1–18",
+                translation: "NIV11",
+                verses: [
+                    { verse: 1, text: "Praise the LORD, my soul; all my inmost being, praise his holy name." },
+                    { verse: 2, text: "Praise the LORD, my soul, and forget not all his benefits—" },
+                    { verse: 3, text: "who forgives all your sins and heals all your diseases," },
+                    { verse: 4, text: "who redeems your life from the pit and crowns you with love and compassion," },
+                    { verse: 5, text: "who satisfies your desires with good things so that your youth is renewed like the eagle’s." },
+                    { verse: 6, text: "The LORD works righteousness and justice for all the oppressed." },
+                    { verse: 7, text: "He made known his ways to Moses, his deeds to the people of Israel:" },
+                    { verse: 8, text: "The LORD is compassionate and gracious, slow to anger, abounding in love." },
+                    { verse: 9, text: "He will not always accuse, nor will he harbor his anger forever;" },
+                    { verse: 10, text: "he does not treat us as our sins deserve or repay us according to our iniquities." },
+                    { verse: 11, text: "For as high as the heavens are above the earth, so great is his love for those who fear him;" },
+                    { verse: 12, text: "as far as the east is from the west, so far has he removed our transgressions from us." },
+                    { verse: 13, text: "As a father has compassion on his children, so the LORD has compassion on those who fear him;" },
+                    { verse: 14, text: "for he knows how we are formed, he remembers that we are dust." },
+                    { verse: 15, text: "The life of mortals is like grass, they flourish like a flower of the field;" },
+                    { verse: 16, text: "the wind blows over it and it is gone, and its place remembers it no more." },
+                    { verse: 17, text: "But from everlasting to everlasting the LORD’s love is with those who fear him, and his righteousness with their children’s children—" },
+                    { verse: 18, text: "with those who keep his covenant and remember to obey his precepts." }
+                ]
+            },
+            "Psalm 103:1-18": {
+                name: "Psalm 103:1–18",
+                translation: "NIV11",
+                verses: [
+                    { verse: 1, text: "Praise the LORD, my soul; all my inmost being, praise his holy name." },
+                    { verse: 2, text: "Praise the LORD, my soul, and forget not all his benefits—" },
+                    { verse: 3, text: "who forgives all your sins and heals all your diseases," },
+                    { verse: 4, text: "who redeems your life from the pit and crowns you with love and compassion," },
+                    { verse: 5, text: "who satisfies your desires with good things so that your youth is renewed like the eagle’s." },
+                    { verse: 6, text: "The LORD works righteousness and justice for all the oppressed." },
+                    { verse: 7, text: "He made known his ways to Moses, his deeds to the people of Israel:" },
+                    { verse: 8, text: "The LORD is compassionate and gracious, slow to anger, abounding in love." },
+                    { verse: 9, text: "He will not always accuse, nor will he harbor his anger forever;" },
+                    { verse: 10, text: "he does not treat us as our sins deserve or repay us according to our iniquities." },
+                    { verse: 11, text: "For as high as the heavens are above the earth, so great is his love for those who fear him;" },
+                    { verse: 12, text: "as far as the east is from the west, so far has he removed our transgressions from us." },
+                    { verse: 13, text: "As a father has compassion on his children, so the LORD has compassion on those who fear him;" },
+                    { verse: 14, text: "for he knows how we are formed, he remembers that we are dust." },
+                    { verse: 15, text: "The life of mortals is like grass, they flourish like a flower of the field;" },
+                    { verse: 16, text: "the wind blows over it and it is gone, and its place remembers it no more." },
+                    { verse: 17, text: "But from everlasting to everlasting the LORD’s love is with those who fear him, and his righteousness with their children’s children—" },
+                    { verse: 18, text: "with those who keep his covenant and remember to obey his precepts." }
+                ]
+            },
             "Matthew 5-7": {
                 name: "Matthew 5–7",
                 translation: "NIV11",
