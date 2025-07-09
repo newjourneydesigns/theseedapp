@@ -1242,9 +1242,22 @@
               passageTranslationSpan.style.display = 'none';
             } else {
               updatePassageTitle(activePassage);
-              // Only set passageTitle if not a custom passage
+              // Make the passage title a working link to YouVersion
               if (activePassage !== 'Custom Passage') {
-                passageTitle.innerText = activePassage;
+                // Set the link text to the passage name
+                const passage = preloadedPassages[activePassage];
+                if (passage) {
+                  youVersionLink.textContent = passage.name;
+                  let formattedReference = passage.name.replace(/\s+/g, '').replace(':', '.').replace('–', '-');
+                  youVersionLink.href = `https://www.bible.com/bible/111/${formattedReference}`;
+                  youVersionLink.style.display = '';
+                  youVersionLink.target = '_blank';
+                  youVersionLink.rel = 'noopener noreferrer';
+                } else {
+                  youVersionLink.textContent = activePassage;
+                  youVersionLink.href = '#';
+                  youVersionLink.style.display = '';
+                }
               }
             }
           }
