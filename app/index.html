@@ -930,17 +930,27 @@
     </script>
     <script type="module">
       // --- Verse Text Size Control ---
+
       document.addEventListener('DOMContentLoaded', function() {
         const sizeSelect = document.getElementById('verse-text-size-select');
         const versesDisplay = document.getElementById('todays-verses-display');
-        // Helper: apply class to verse display
+        const continuedReadingDisplay = document.getElementById('continued-reading-display');
+        // Helper: apply class to verse display and continued reading
         function applyVerseTextSize(size) {
-          if (!versesDisplay) return;
-          versesDisplay.classList.remove('verse-text-sm', 'verse-text-base', 'verse-text-lg', 'verse-text-xl');
-          if (size === 'sm') versesDisplay.classList.add('verse-text-sm');
-          else if (size === 'base') versesDisplay.classList.add('verse-text-base');
-          else if (size === 'lg') versesDisplay.classList.add('verse-text-lg');
-          else if (size === 'xl') versesDisplay.classList.add('verse-text-xl');
+          if (versesDisplay) {
+            versesDisplay.classList.remove('verse-text-sm', 'verse-text-base', 'verse-text-lg', 'verse-text-xl');
+            if (size === 'sm') versesDisplay.classList.add('verse-text-sm');
+            else if (size === 'base') versesDisplay.classList.add('verse-text-base');
+            else if (size === 'lg') versesDisplay.classList.add('verse-text-lg');
+            else if (size === 'xl') versesDisplay.classList.add('verse-text-xl');
+          }
+          if (continuedReadingDisplay) {
+            continuedReadingDisplay.classList.remove('verse-text-sm', 'verse-text-base', 'verse-text-lg', 'verse-text-xl');
+            if (size === 'sm') continuedReadingDisplay.classList.add('verse-text-sm');
+            else if (size === 'base') continuedReadingDisplay.classList.add('verse-text-base');
+            else if (size === 'lg') continuedReadingDisplay.classList.add('verse-text-lg');
+            else if (size === 'xl') continuedReadingDisplay.classList.add('verse-text-xl');
+          }
         }
         // Load from localStorage
         let savedSize = localStorage.getItem('verseTextSize') || 'base';
