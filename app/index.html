@@ -300,7 +300,8 @@
                     </div>
                     <div>
                         <p class="text-sm font-medium opacity-80">Target Date</p>
-                        <p id="target-date-display" class="text-2xl font-bold">-</p>
+                        <p id="target-date-display" class="text-2xl font-bold cursor-pointer" title="Tap to change date">-</p>
+                        <input type="date" id="inline-target-date-input" class="form-input mt-2 hidden" style="max-width: 180px; margin: 0 auto;" />
                     </div>
                 </div>
                 <div class="w-full rounded-full h-3" style="background-color: var(--primary-bg);">
@@ -491,6 +492,54 @@
       document.getElementById("footer-year").textContent = new Date().getFullYear();
     </script>
     <script type="module">
+      // --- Inline Target Date Change Logic ---
+      document.addEventListener('DOMContentLoaded', function() {
+        const targetDateDisplay = document.getElementById('target-date-display');
+        const inlineTargetDateInput = document.getElementById('inline-target-date-input');
+        // Show date picker when date is tapped
+        targetDateDisplay.addEventListener('click', function() {
+          // Set input value to current date if available
+          const plan = JSON.parse(localStorage.getItem('memorizationPlan') || '{}');
+          if (plan && plan.targetDate) {
+            inlineTargetDateInput.value = plan.targetDate;
+          } else {
+            inlineTargetDateInput.value = '';
+          }
+          targetDateDisplay.style.display = 'none';
+          inlineTargetDateInput.classList.remove('hidden');
+          inlineTargetDateInput.focus();
+        });
+        // Hide input and update date on change or blur
+        function finishDateEdit(newDate) {
+          if (newDate) {
+            // Update plan in localStorage
+            const plan = JSON.parse(localStorage.getItem('memorizationPlan') || '{}');
+            if (plan && plan.targetDate !== newDate) {
+              plan.targetDate = newDate;
+              localStorage.setItem('memorizationPlan', JSON.stringify(plan));
+              // Optionally, update UI immediately (without reload)
+              targetDateDisplay.textContent = formatDisplayDate(newDate);
+              // Optionally, recalculate days left, etc. (reload for now)
+              location.reload();
+            }
+          }
+          inlineTargetDateInput.classList.add('hidden');
+          targetDateDisplay.style.display = '';
+        }
+        inlineTargetDateInput.addEventListener('change', function(e) {
+          finishDateEdit(e.target.value);
+        });
+        inlineTargetDateInput.addEventListener('blur', function(e) {
+          finishDateEdit(e.target.value);
+        });
+        // Helper to format date for display (MM/DD/YYYY)
+        function formatDisplayDate(dateStr) {
+          if (!dateStr) return '-';
+          const d = new Date(dateStr);
+          if (isNaN(d)) return dateStr;
+          return `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`;
+        }
+      });
       // --- Drill Helpers ---
 
       // --- Custom Passage Plan Creation ---
