@@ -498,8 +498,6 @@
           </p>
         </div>
    </footer>
-</style>
-
     <style>
       button {
         touch-action: manipulation;
@@ -518,12 +516,134 @@
         display: block;
         margin: 0 auto;
       }
-</style>
+      /* Drill Footer Responsive Layout */
+      .drill-footer {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 100;
+        background: rgba(22, 56, 32, 0.98);
+        box-shadow: 0 -4px 24px 0 rgba(0,0,0,0.25);
+        padding: 0.75rem 0.5rem calc(env(safe-area-inset-bottom, 0.5rem) + 1.5rem) 0.5rem;
+        border-top-left-radius: 18px;
+        border-top-right-radius: 18px;
+        min-height: 90px;
+        width: 100vw;
+        max-width: 100vw;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .drill-mode-row {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 0.5rem;
+      }
+      .drill-mode-select {
+        width: 100%;
+        min-width: 180px;
+        max-width: 340px;
+        font-size: 1.1em;
+        box-sizing: border-box;
+        margin: 0 auto;
+      }
+      @media (max-width: 600px) {
+        .drill-mode-select {
+          min-width: 90vw;
+          max-width: 98vw;
+          width: 98vw;
+        }
+        .drill-footer {
+          padding-left: 0.25rem;
+          padding-right: 0.25rem;
+        }
+      }
+      .drill-controls-row, .listen-controls-row {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-bottom: 2.5rem;
+      }
+      .drill-nav-btn {
+        width: 44vw;
+        min-width: 120px;
+        max-width: 180px;
+        margin: 0 0.25rem;
+        font-size: 1.1em;
+        padding: 0.7em 0.5em;
+        box-sizing: border-box;
+      }
+      @media (max-width: 600px) {
+        .drill-nav-btn {
+          width: 44vw;
+          min-width: 0;
+          max-width: 98vw;
+          font-size: 1em;
+          padding: 0.7em 0.2em;
+        }
+      }
+      .listen-controls-row {
+        gap: 0.5rem;
+        margin-top: 0.2rem;
+        margin-bottom: 0.2rem;
+      }
+      .listen-play-btn, .listen-stop-btn {
+        background: #e0e0e0;
+        border: none;
+        padding: 0.3em 0.7em;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 48px;
+        min-height: 48px;
+        transition: background 0.15s;
+      }
+      .listen-play-btn:active, .listen-stop-btn:active {
+        background: #c8c8c8;
+      }
+      .listen-speed-btn {
+        background: #e0e0e0;
+        border: none;
+        padding: 0.3em 0.9em;
+        border-radius: 12px;
+        font-size: 1.1em;
+        min-width: 56px;
+        min-height: 44px;
+        margin: 0 0.1em;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: background 0.15s;
+      }
+      .listen-speed-btn:active {
+        background: #c8c8c8;
+      }
+      @media (max-width: 600px) {
+        .listen-controls-row {
+          flex-wrap: wrap;
+          gap: 0.4rem;
+        }
+        .listen-play-btn, .listen-stop-btn, .listen-speed-btn {
+          min-width: 44px;
+          min-height: 40px;
+          font-size: 1em;
+          padding: 0.3em 0.5em;
+        }
+        .listen-speed-btn {
+          min-width: 44px;
+        }
+      }
+    </style>
 
-    <!-- Drill Floating Footer (Redesigned) -->
-    <div class="drill-footer" id="drill-footer" style="display: none; flex-direction: column; align-items: center;">
-      <div class="flex items-center gap-3 mb-2 w-full justify-center">
-        <select id="drill-mode-select" class="form-input px-4 py-2 rounded-md shadow-md font-semibold text-base w-48" style="max-width: 220px;">
+    <!-- Drill Floating Footer (Redesigned & Responsive) -->
+    <div class="drill-footer" id="drill-footer" style="display: none; flex-direction: column; align-items: center; padding-bottom: env(safe-area-inset-bottom, 0);">
+      <div class="flex items-center gap-3 mb-2 w-full justify-center drill-mode-row">
+        <select id="drill-mode-select" class="form-input font-semibold text-base drill-mode-select">
           <option value="full-passage">Full Passage</option>
           <option value="first-letter">First Letter</option>
           <option value="word-by-word">Word for Word</option>
@@ -531,36 +651,149 @@
           <option value="listen">Listen</option>
         </select>
       </div>
-      <div id="drill-controls-row" class="flex items-center gap-2 w-full justify-center">
+      <div id="drill-controls-row" class="flex items-center gap-2 w-full justify-center drill-controls-row">
         <!-- Navigation buttons (no verse navigation) -->
-        <button id="drill-prev-word" class="exercise-btn px-4 py-2 rounded-md shadow-md transition-colors duration-200 drill-nav-btn" title="Previous Word">Previous</button>
-        <button id="drill-next-word" class="exercise-btn px-4 py-2 rounded-md shadow-md transition-colors duration-200 drill-nav-btn" title="Next Word">Next</button>
-</style>
-
-    <style>
-      /* Drill navigation buttons fixed width and spacing */
-      .drill-nav-btn {
-        width: 140px;
-        min-width: 140px;
-        max-width: 140px;
-        margin-right: 10px;
-      }
-      .drill-nav-btn:last-of-type {
-        margin-right: 0;
-      }
-    </style>
+        <button id="drill-prev-word" class="exercise-btn drill-nav-btn" title="Previous Word">Previous</button>
+        <button id="drill-next-word" class="exercise-btn drill-nav-btn" title="Next Word">Next</button>
         <!-- Listen controls (hidden unless in listen mode) -->
-        <div id="listen-controls" style="display:none; gap:0.5rem; align-items:center;" class="flex">
-          <button id="listen-play-pause" class="exercise-btn px-4 py-2 rounded-md shadow-md transition-colors duration-200" title="Play/Pause">
-            <span id="listen-play-icon">&#9654;</span><span id="listen-pause-icon" style="display:none;">&#10073;&#10073;</span>
+        <div id="listen-controls" style="display:none; align-items:center; width:100%;" class="flex listen-controls-row">
+          <button id="listen-play-pause" class="exercise-btn listen-play-btn" title="Play/Pause">
+            <svg id="listen-play-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="28" height="28" style="vertical-align:middle;"><polygon points="7,4 27,16 7,28" fill="black"/></svg>
+            <span id="listen-pause-icon" style="display:none; font-size: 1.5em; vertical-align:middle;">&#10073;&#10073;</span>
           </button>
-          <button id="listen-stop" class="exercise-btn px-4 py-2 rounded-md shadow-md transition-colors duration-200" title="Stop">&#9632;</button>
-          <button id="listen-speed-05" class="exercise-btn px-3 py-2 rounded-md shadow-md transition-colors duration-200" data-speed="0.5">0.5x</button>
-          <button id="listen-speed-1" class="exercise-btn px-3 py-2 rounded-md shadow-md transition-colors duration-200" data-speed="1">1x</button>
-          <button id="listen-speed-2" class="exercise-btn px-3 py-2 rounded-md shadow-md transition-colors duration-200" data-speed="2">2x</button>
+          <button id="listen-stop" class="exercise-btn listen-stop-btn" title="Stop">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="28" height="28"><rect x="7" y="7" width="18" height="18" fill="black"/></svg>
+          </button>
+          <button id="listen-speed-05" class="exercise-btn listen-speed-btn" data-speed="0.5">0.5x</button>
+          <button id="listen-speed-1" class="exercise-btn listen-speed-btn" data-speed="1">1x</button>
+          <button id="listen-speed-2" class="exercise-btn listen-speed-btn" data-speed="2">2x</button>
         </div>
       </div>
     </div>
+
+    <style>
+      /* Drill Footer Responsive Layout */
+      .drill-footer {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 100;
+        background: rgba(22, 56, 32, 0.98);
+        box-shadow: 0 -4px 24px 0 rgba(0,0,0,0.25);
+        padding: 0.75rem 0.5rem env(safe-area-inset-bottom, 0.5rem) 0.5rem;
+        border-top-left-radius: 18px;
+        border-top-right-radius: 18px;
+        min-height: 90px;
+        width: 100vw;
+        max-width: 100vw;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .drill-mode-row {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 0.5rem;
+      }
+      .drill-mode-select {
+        width: 100%;
+        min-width: 180px;
+        max-width: 340px;
+        font-size: 1.1em;
+        box-sizing: border-box;
+        margin: 0 auto;
+      }
+      @media (max-width: 600px) {
+        .drill-mode-select {
+          min-width: 90vw;
+          max-width: 98vw;
+          width: 98vw;
+        }
+        .drill-footer {
+          padding-left: 0.25rem;
+          padding-right: 0.25rem;
+        }
+      }
+      .drill-controls-row, .listen-controls-row {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+      .drill-nav-btn {
+        width: 44vw;
+        min-width: 120px;
+        max-width: 180px;
+        margin: 0 0.25rem;
+        font-size: 1.1em;
+        padding: 0.7em 0.5em;
+        box-sizing: border-box;
+      }
+      @media (max-width: 600px) {
+        .drill-nav-btn {
+          width: 44vw;
+          min-width: 0;
+          max-width: 98vw;
+          font-size: 1em;
+          padding: 0.7em 0.2em;
+        }
+      }
+      .listen-controls-row {
+        gap: 0.5rem;
+        margin-top: 0.2rem;
+        margin-bottom: 0.2rem;
+      }
+      .listen-play-btn, .listen-stop-btn {
+        background: #e0e0e0;
+        border: none;
+        padding: 0.3em 0.7em;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 48px;
+        min-height: 48px;
+        transition: background 0.15s;
+      }
+      .listen-play-btn:active, .listen-stop-btn:active {
+        background: #c8c8c8;
+      }
+      .listen-speed-btn {
+        background: #e0e0e0;
+        border: none;
+        padding: 0.3em 0.9em;
+        border-radius: 12px;
+        font-size: 1.1em;
+        min-width: 56px;
+        min-height: 44px;
+        margin: 0 0.1em;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: background 0.15s;
+      }
+      .listen-speed-btn:active {
+        background: #c8c8c8;
+      }
+      @media (max-width: 600px) {
+        .listen-controls-row {
+          flex-wrap: wrap;
+          gap: 0.4rem;
+        }
+        .listen-play-btn, .listen-stop-btn, .listen-speed-btn {
+          min-width: 44px;
+          min-height: 40px;
+          font-size: 1em;
+          padding: 0.3em 0.5em;
+        }
+        .listen-speed-btn {
+          min-width: 44px;
+        }
+      }
+    </style>
 
     <script>
       document.getElementById("footer-year").textContent = new Date().getFullYear();
