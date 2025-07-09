@@ -632,13 +632,33 @@
         // updatePassageTitle("Matthew 5-7");
 
         // --- Load/display the active passage for a plan (using currentPassage from localStorage) ---
+        // Move these DOM element declarations above DOMContentLoaded so they're available inside it
+        const versesMemorizedSpan = document.getElementById('verses-memorized');
+        const percentCompleteSpan = document.getElementById('percent-complete');
+        const daysRemainingSpan = document.getElementById('days-remaining');
+        const targetDateDisplay = document.getElementById('target-date-display');
+        const progressBar = document.getElementById('progress-bar');
+        const progressMessage = document.getElementById('progress-message');
+        const todaysVersesDisplay = document.getElementById('todays-verses-display');
+        const continuedReadingSection = document.getElementById('continued-reading-section');
+        const continuedReadingDisplay = document.getElementById('continued-reading-display');
+        const markCompleteButton = document.getElementById('mark-complete-button');
+        const undoCompleteButton = document.getElementById('undoCompleteButton');
+        const verseRangeContainer = document.getElementById('verse-range-container');
+        const startVerseSelect = document.getElementById('start-verse-select');
+        const endVerseSelect = document.getElementById('end-verse-select');
+        // Menu Elements
+        const menuButton = document.getElementById('menu-button');
+        const sideMenu = document.getElementById('side-menu');
+        const sideMenuOverlay = document.getElementById('side-menu-overlay');
+
         document.addEventListener('DOMContentLoaded', () => {
           const activePassage = localStorage.getItem('currentPassage');
           const planStr = localStorage.getItem('memorizationPlan');
           let planObj = null;
           try { planObj = planStr ? JSON.parse(planStr) : null; } catch (e) {}
 
-          // If it's a custom plan, render the custom passage
+          // If it's a custom plan, render the custom passage and show progress info
           if (planObj && planObj.custom && Array.isArray(planObj.verses)) {
             // Hide passageTitle (the h1) and all passage info for custom plans
             passageTitle.style.display = 'none';
@@ -667,6 +687,35 @@
             if (todaysVersesDisplay) {
               todaysVersesDisplay.innerHTML = planObj.verses.map(v => `<p>${v.text}</p>`).join('');
             }
+
+            // --- Show progress info for custom plans ---
+            // Target date
+            if (planObj.targetDate && targetDateDisplay) {
+              targetDateDisplay.textContent = planObj.targetDate;
+              targetDateDisplay.style.display = '';
+            }
+            // Progress bar and stats
+            if (Array.isArray(planObj.verses) && progressBar && percentCompleteSpan && versesMemorizedSpan && daysRemainingSpan) {
+              const totalVerses = planObj.verses.length;
+              const completedVerses = Array.isArray(planObj.completedVerses) ? planObj.completedVerses.length : 0;
+              const percent = totalVerses > 0 ? Math.round((completedVerses / totalVerses) * 100) : 0;
+              progressBar.style.width = percent + '%';
+              percentCompleteSpan.textContent = percent + '%';
+              versesMemorizedSpan.textContent = completedVerses + ' / ' + totalVerses;
+              // Days remaining
+              if (planObj.targetDate) {
+                const today = new Date();
+                const target = new Date(planObj.targetDate);
+                const diff = Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+                daysRemainingSpan.textContent = diff >= 0 ? diff : 0;
+              }
+            }
+            // Show progress bar and stats if hidden
+            if (progressBar) progressBar.parentElement.style.display = '';
+            if (percentCompleteSpan) percentCompleteSpan.parentElement.style.display = '';
+            if (versesMemorizedSpan) versesMemorizedSpan.parentElement.style.display = '';
+            if (daysRemainingSpan) daysRemainingSpan.parentElement.style.display = '';
+            if (progressMessage) progressMessage.style.display = '';
             return;
           }
 
@@ -700,25 +749,7 @@
             referenceLink.href = `https://www.bible.com/bible/111/${formattedReference}`;
           }
         });
-        const versesMemorizedSpan = document.getElementById('verses-memorized');
-        const percentCompleteSpan = document.getElementById('percent-complete');
-        const daysRemainingSpan = document.getElementById('days-remaining');
-        const targetDateDisplay = document.getElementById('target-date-display');
-        const progressBar = document.getElementById('progress-bar');
-        const progressMessage = document.getElementById('progress-message');
-        const todaysVersesDisplay = document.getElementById('todays-verses-display');
-        const continuedReadingSection = document.getElementById('continued-reading-section');
-        const continuedReadingDisplay = document.getElementById('continued-reading-display');
-        const markCompleteButton = document.getElementById('mark-complete-button');
-        const undoCompleteButton = document.getElementById('undoCompleteButton');
-        const verseRangeContainer = document.getElementById('verse-range-container');
-        const startVerseSelect = document.getElementById('start-verse-select');
-        const endVerseSelect = document.getElementById('end-verse-select');
-        
-        // Menu Elements
-        const menuButton = document.getElementById('menu-button');
-        const sideMenu = document.getElementById('side-menu');
-        const sideMenuOverlay = document.getElementById('side-menu-overlay');
+
         const sideMenuCloseButton = document.getElementById('side-menu-close-button');
         const resetPlanBtn = document.getElementById('reset-plan-btn');
         const sharePlanBtn = document.getElementById('share-plan-btn');
