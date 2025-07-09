@@ -152,8 +152,8 @@
         }
         /* Seed Planted button style */
         #mark-complete-button {
-            background-color: #34403A !important;
-            color: #94a37c !important;
+            background-color: #cacb9e !important;
+            color: #285238 !important;
         }
         .loader {
             border: 5px solid var(--accent-2);
@@ -172,7 +172,7 @@
           position: fixed;
           bottom: 0;
           width: 100%;
-          background-color: #34403a; /* dark green */
+          background-color: #264d3b;       /* match app green */
           padding: 1.5rem;
           display: flex;
           justify-content: center;
@@ -346,7 +346,15 @@
                       class="inline-flex items-center bg-seed-pale-yellow text-seed-light-olive font-semibold px-4 py-2 rounded-md shadow-md hover:bg-seed-dark-green hover:text-seed-dark-green transition-colors duration-300 hidden"
                     >
                       <img src="https://i.imgur.com/26XfGSP.png" alt="Seed Icon" class="w-5 h-5 mr-2">
-Done For Today
+                      Done For Today
+                    </button>
+                    <button
+                      id="undoCompleteButton"
+                      class="inline-flex items-center bg-seed-pale-yellow text-seed-light-olive font-semibold px-4 py-2 rounded-md shadow-md hover:bg-seed-dark-green hover:text-seed-dark-green transition-colors duration-300 ml-2 hidden"
+                      type="button"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5 mr-2"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l-4-4m0 0l4-4m-4 4h12a4 4 0 110 8h-1" /></svg>
+                      Undo
                     </button>
                 </div>
             </section>
@@ -652,7 +660,9 @@ Done For Today
         const continuedReadingSection = document.getElementById('continued-reading-section');
         const continuedReadingDisplay = document.getElementById('continued-reading-display');
         const markCompleteButton = document.getElementById('mark-complete-button');
-        const undoCompleteButton = document.getElementById('undoCompleteButton');
+        // Get Undo button element (only once, avoid redeclaration)
+        // Get Undo button element (only once, avoid redeclaration)
+        var undoCompleteButton = document.getElementById('undoCompleteButton');
         const verseRangeContainer = document.getElementById('verse-range-container');
         const startVerseSelect = document.getElementById('start-verse-select');
         const endVerseSelect = document.getElementById('end-verse-select');
@@ -1354,7 +1364,7 @@ Done For Today
                   window.speechSynthesis.cancel(); // Stop any previous
                   const utter = new window.SpeechSynthesisUtterance(text);
                   utter.rate = 0.57; // Even slower for clarity
-                  utter.pitch = 1;
+                  utter.pitch = 4;
                   utter.volume = 1;
                   // Try to use a pleasant English voice
                   const voices = window.speechSynthesis.getVoices();
@@ -1372,20 +1382,30 @@ Done For Today
         });
 
         // --- Mark Complete and Undo Handlers ---
-        // --- Undo Button Handler (fixed logic for Undo button) ---
+        // --- Undo Button Handler ---
         if (undoCompleteButton) {
           undoCompleteButton.addEventListener("click", () => {
             const planStr = localStorage.getItem("memorizationPlan");
             if (!planStr) return;
-
             const plan = JSON.parse(planStr);
             if (!plan.completedVerses || plan.completedVerses.length === 0) return;
-
             plan.completedVerses.pop(); // Remove the last completed verse
             localStorage.setItem("memorizationPlan", JSON.stringify(plan));
             location.reload();
           });
         }
+
+        // Show Undo button if there is something to undo
+        document.addEventListener('DOMContentLoaded', () => {
+          const planStr = localStorage.getItem('memorizationPlan');
+          var undoBtn = document.getElementById('undoCompleteButton');
+          if (planStr && undoBtn) {
+            const plan = JSON.parse(planStr);
+            if (Array.isArray(plan.completedVerses) && plan.completedVerses.length > 0) {
+              undoBtn.classList.remove('hidden');
+            }
+          }
+        });
 
         // --- Mark Complete Button Handler ---
         markCompleteButton.addEventListener("click", () => {
