@@ -273,7 +273,7 @@
                     <img src="https://i.imgur.com/eF4vmiG.png" alt="Seed Logo" class="h-8 rounded-md">
                 </button>
                 <h1 id="passage-title" class="flex-grow text-xl md:text-2xl font-bold text-right mx-4">
-                    <a id="youversion-link" href="#" target="_blank" rel="noopener noreferrer" class="underline hover:opacity-80"></a>
+                    <a id="youversion-link" href="#" target="_blank" rel="noopener noreferrer" class="font-bold text-xl md:text-2xl underline hover:opacity-80" style="color:inherit;"></a>
                     <span id="passage-translation" class="text-base opacity-75"></span>
                 </h1>
             </header>
@@ -608,14 +608,20 @@
                 if (passageTitle.textContent === 'Custom Passage') passageTitle.textContent = '';
                 if (passageTranslationSpan.textContent === 'Custom Passage') passageTranslationSpan.textContent = '';
                 youVersionLink.textContent = passage.name;
-                // ...existing code for YouVersion link and translation...
-                // (omitted for brevity, unchanged)
-                // ...
+                // Format for YouVersion URL: e.g. Psalm 103:1–18 => Psalm103.1-18
+                let formattedReference = passage.name.replace(/\s+/g, '').replace(':', '.').replace('–', '-');
+                youVersionLink.href = `https://www.bible.com/bible/111/${formattedReference}`;
+                youVersionLink.style.display = '';
+                youVersionLink.target = '_blank';
+                youVersionLink.rel = 'noopener noreferrer';
+                if (passageTranslationSpan) passageTranslationSpan.textContent = passage.translation || '';
             } else if (passageKey === 'Custom Passage') {
                 // Remove any text from the passage title and link for custom passage
                 youVersionLink.textContent = '';
+                youVersionLink.href = '';
+                youVersionLink.style.display = 'none';
                 passageTitle.textContent = '';
-                passageTranslationSpan.textContent = '';
+                if (passageTranslationSpan) passageTranslationSpan.textContent = '';
             } else {
                 // For any other case, ensure 'Custom Passage' is never shown
                 if (youVersionLink.textContent === 'Custom Passage') youVersionLink.textContent = '';
