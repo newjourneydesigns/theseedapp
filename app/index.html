@@ -1832,10 +1832,21 @@
                 if (prevWordBtn) prevWordBtn.style.display = 'none';
                 if (nextWordBtn) nextWordBtn.style.display = 'none';
                 if (listenControls) listenControls.style.display = 'flex';
-                // Listen mode: trigger listen logic
-                if (typeof openFHExercise === 'function') openFHExercise('full-passage');
-                if (typeof triggerListenDrill === 'function') triggerListenDrill();
-                else listenDrillFallback();
+                // Listen mode: prepare UI but do NOT auto-play
+                // Prevent openFHExercise from triggering listenDrillFallback automatically
+                if (typeof openFHExercise === 'function') {
+                  // Temporarily disable listenDrillFallback and triggerListenDrill
+                  const origListenDrillFallback = window.listenDrillFallback;
+                  const origTriggerListenDrill = window.triggerListenDrill;
+                  window.listenDrillFallback = function(){};
+                  window.triggerListenDrill = function(){};
+                  openFHExercise('full-passage');
+                  // Restore originals
+                  window.listenDrillFallback = origListenDrillFallback;
+                  window.triggerListenDrill = origTriggerListenDrill;
+                }
+                // Do NOT call listenDrillFallback or triggerListenDrill automatically
+                // User must click play to start audio
               } else if (mode === 'full-passage') {
                 // Hide nav buttons, hide listen controls
                 if (prevWordBtn) prevWordBtn.style.display = 'none';
