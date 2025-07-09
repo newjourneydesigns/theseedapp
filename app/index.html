@@ -392,28 +392,29 @@
       /* Done For Today Confirmation Modal Styles */
       #done-confirm-modal {
         position: fixed;
+        top: 0;
         left: 0;
-        right: 0;
-        bottom: 0;
         width: 100vw;
-        height: auto;
+        height: 100vh;
         display: flex;
-        align-items: flex-end;
+        align-items: center;
         justify-content: center;
         z-index: 9999;
-        background: rgba(0,0,0,0.18);
-        pointer-events: none;
+        background: rgba(0,0,0,0.75);
+        pointer-events: auto;
       }
       #done-confirm-modal .modal-content {
         background: var(--primary-bg, #fff);
-        border-radius: 18px 18px 0 0;
+        border-radius: 18px;
         box-shadow: 0 8px 32px rgba(0,0,0,0.18);
         padding: 2rem 1.5rem 1.5rem 1.5rem;
-        max-width: 90vw;
         min-width: 260px;
         max-width: 95vw;
-        margin: 0 0 2.5rem 0;
+        margin: 0 auto;
         pointer-events: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
       }
       #done-confirm-modal.hidden {
         display: none !important;
