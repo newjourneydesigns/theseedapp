@@ -379,9 +379,9 @@
     <!-- Done For Today Confirmation Modal -->
     <div id="done-confirm-modal" class="modal hidden">
       <div class="modal-content text-center max-w-xs mx-auto">
-        <h2 class="text-xl font-bold mb-4">Done For Today?</h2>
+        <h2 class="text-xl font-bold mb-4">Well done!</h2>
         <p class="mb-4">"And the seeds that fell on the good soil represent honest, good-hearted people who hear God’s word, cling to it, and patiently produce a huge harvest." 
-            </p> Luke 8:15 NLT
+        </br>Luke 8:15 NLT</p>
         <div class="flex justify-center gap-4 mt-6">
           <button id="done-confirm-btn" class="font-bold py-2 px-6 rounded-lg" style="background-color: var(--accent-1); color: var(--primary-bg);">Done</button>
           <button id="done-cancel-btn" class="font-bold py-2 px-6 rounded-lg bg-gray-300 text-gray-800">Cancel</button>
@@ -397,17 +397,19 @@
         width: 100vw;
         height: 100vh;
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: center;
         z-index: 9999;
         background: rgba(0,0,0,0.75);
         pointer-events: auto;
+        /* Add space above modal */
+        padding-top: 7vh;
       }
       #done-confirm-modal .modal-content {
         background: var(--primary-bg, #fff);
         border-radius: 18px;
         box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-        padding: 2rem 1.5rem 1.5rem 1.5rem;
+        padding: 2rem 1.5rem 1.5rem 2rem;
         min-width: 260px;
         max-width: 95vw;
         margin: 0 auto;
@@ -415,6 +417,8 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        /* Add extra space above modal content */
+        margin-top: 2vh;
       }
       #done-confirm-modal.hidden {
         display: none !important;
@@ -721,8 +725,9 @@
         border-radius: 12px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: center;
+        padding-top: 7vh;
         min-width: 48px;
         min-height: 48px;
         transition: background 0.15s;
@@ -826,7 +831,7 @@
         max-width: 340px;
         font-size: 1.1em;
         box-sizing: border-box;
-        margin: 0 auto;
+        margin: 2vh auto 0 auto;
       }
       @media (max-width: 600px) {
         .drill-mode-select {
