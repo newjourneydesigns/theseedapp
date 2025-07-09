@@ -20,7 +20,47 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <style>
+      <style>
+        /* Match drill mode dropdown width to the exercise buttons */
+        #drill-mode-select {
+          min-width: 300px;
+          max-width: 3000px;
+          width: 160px;
+          height: 40px;
+          font-size: 1rem;
+          border-radius: 0.5rem;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+          border: 1px solid var(--accent-2, #a3bffa);
+          background: var(--primary-bg, #fff3bf);
+          color: var(--primary-fg, #94a37c);
+          padding: 0 1.5rem 0 1rem;
+          appearance: none;
+          transition: border-color 0.2s;
+        }
+        #drill-mode-select:focus {
+          outline: none;
+          border-color: var(--accent-1, #667eea);
+        }
+        /* Add a dropdown arrow for visual polish */
+        #drill-mode-select {
+          background-image: url('data:image/svg+xml;utf8,<svg fill="%23667eea" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M7.293 7.293a1 1 0 011.414 0L10 8.586l1.293-1.293a1 1 0 111.414 1.414l-2 2a1 1 0 01-1.414 0l-2-2a1 1 0 010-1.414z"/></svg>');
+          background-repeat: no-repeat;
+          background-position: right 0.75rem center;
+          background-size: 1.2em;
+        }
+        /* Ensure the dropdown matches button height and spacing */
+        #drill-footer .exercise-btn, #drill-mode-select {
+          margin: 0 0.25rem;
+        }
+        @media (max-width: 600px) {
+          #drill-mode-select {
+            min-width: 110px;
+            max-width: 100vw;
+            width: 100%;
+            font-size: 0.95rem;
+            height: 38px;
+          }
+        }
         /* Fix for background gradient bleeding/edge artifacts */
         .fixed-full-gradient {
             background: linear-gradient(to bottom, #34403a, #285238);
@@ -322,20 +362,7 @@
                 <h2 class="text-xl font-bold mb-4">Today's Verses</h2>
                 <div id="todays-verses-display" class="space-y-4 text-base md:text-lg leading-relaxed"></div>
                 <!-- Fire & Hammer exercise buttons -->
-                <div id="exercise-buttons" class="flex flex-wrap justify-center gap-3 mt-6">
-                    <button id="exercise-first-letters" class="exercise-btn inline-flex items-center font-semibold px-4 py-2 rounded-md shadow-md transition-colors duration-200" style="background-color: var(--accent-1); color: var(--primary-bg);">
-                        First&nbsp;Letters
-                    </button>
-                    <button id="exercise-word-by-word" class="exercise-btn inline-flex items-center font-semibold px-4 py-2 rounded-md shadow-md transition-colors duration-200" style="background-color: var(--accent-1); color: var(--primary-bg);">
-                        Word&nbsp;by&nbsp;Word
-                    </button>
-                    <button id="exercise-phrase-by-phrase" class="exercise-btn inline-flex items-center font-semibold px-4 py-2 rounded-md shadow-md transition-colors duration-200" style="background-color: var(--accent-1); color: var(--primary-bg);">
-                        Phrase&nbsp;by&nbsp;Phrase
-                    </button>
-                    <button id="exercise-full-passage" class="exercise-btn inline-flex items-center font-semibold px-4 py-2 rounded-md shadow-md transition-colors duration-200" style="background-color: var(--accent-1); color: var(--primary-bg);">
-                        Full&nbsp;Passage
-                    </button>
-                </div>
+                <!-- Removed old exercise buttons; now handled by floating drill footer -->
                 <div class="flex justify-center mt-4">
                     <!-- YouVersion Today button removed -->
                 </div>
@@ -493,10 +520,46 @@
       }
 </style>
 
-    <!-- Drill Floating Footer (Word-by-Word) -->
-    <div class="drill-footer" id="drill-footer" style="display: none;">
-      <button onclick="showPrevWord()">Previous</button>
-      <button onclick="showNextWord()">Next</button>
+    <!-- Drill Floating Footer (Redesigned) -->
+    <div class="drill-footer" id="drill-footer" style="display: none; flex-direction: column; align-items: center;">
+      <div class="flex items-center gap-3 mb-2 w-full justify-center">
+        <select id="drill-mode-select" class="form-input px-4 py-2 rounded-md shadow-md font-semibold text-base w-48" style="max-width: 220px;">
+          <option value="full-passage">Full Passage</option>
+          <option value="first-letter">First Letter</option>
+          <option value="word-by-word">Word for Word</option>
+          <option value="phrase-by-phrase">Phrase by Phrase</option>
+          <option value="listen">Listen</option>
+        </select>
+      </div>
+      <div id="drill-controls-row" class="flex items-center gap-2 w-full justify-center">
+        <!-- Navigation buttons (no verse navigation) -->
+        <button id="drill-prev-word" class="exercise-btn px-4 py-2 rounded-md shadow-md transition-colors duration-200 drill-nav-btn" title="Previous Word">Previous</button>
+        <button id="drill-next-word" class="exercise-btn px-4 py-2 rounded-md shadow-md transition-colors duration-200 drill-nav-btn" title="Next Word">Next</button>
+</style>
+
+    <style>
+      /* Drill navigation buttons fixed width and spacing */
+      .drill-nav-btn {
+        width: 140px;
+        min-width: 140px;
+        max-width: 140px;
+        margin-right: 10px;
+      }
+      .drill-nav-btn:last-of-type {
+        margin-right: 0;
+      }
+    </style>
+        <!-- Listen controls (hidden unless in listen mode) -->
+        <div id="listen-controls" style="display:none; gap:0.5rem; align-items:center;" class="flex">
+          <button id="listen-play-pause" class="exercise-btn px-4 py-2 rounded-md shadow-md transition-colors duration-200" title="Play/Pause">
+            <span id="listen-play-icon">&#9654;</span><span id="listen-pause-icon" style="display:none;">&#10073;&#10073;</span>
+          </button>
+          <button id="listen-stop" class="exercise-btn px-4 py-2 rounded-md shadow-md transition-colors duration-200" title="Stop">&#9632;</button>
+          <button id="listen-speed-05" class="exercise-btn px-3 py-2 rounded-md shadow-md transition-colors duration-200" data-speed="0.5">0.5x</button>
+          <button id="listen-speed-1" class="exercise-btn px-3 py-2 rounded-md shadow-md transition-colors duration-200" data-speed="1">1x</button>
+          <button id="listen-speed-2" class="exercise-btn px-3 py-2 rounded-md shadow-md transition-colors duration-200" data-speed="2">2x</button>
+        </div>
+      </div>
     </div>
 
     <script>
@@ -549,6 +612,30 @@
           const d = new Date(dateStr);
           if (isNaN(d)) return dateStr;
           return `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`;
+        }
+      });
+      // --- Drill Footer Activation ---
+      // Always show the drill footer for now (for demo/testing)
+      document.addEventListener('DOMContentLoaded', function() {
+        const drillFooter = document.getElementById('drill-footer');
+        if (drillFooter) drillFooter.style.display = 'flex';
+        // Match dropdown width to button width
+        const drillModeSelect = document.getElementById('drill-mode-select');
+        const referenceBtn = document.querySelector('.exercise-btn');
+        if (drillModeSelect && referenceBtn) {
+          // Get computed width of a button
+          const btnStyles = window.getComputedStyle(referenceBtn);
+          drillModeSelect.style.width = btnStyles.width;
+        } else if (drillModeSelect) {
+          // Fallback: set a fixed width matching the button style
+          drillModeSelect.style.width = '160px';
+        }
+        // Hide nav buttons if full-passage is default
+        const prevWordBtn = document.getElementById('drill-prev-word');
+        const nextWordBtn = document.getElementById('drill-next-word');
+        if (drillModeSelect && drillModeSelect.value === 'full-passage') {
+          if (prevWordBtn) prevWordBtn.style.display = 'none';
+          if (nextWordBtn) nextWordBtn.style.display = 'none';
         }
       });
       // --- Drill Helpers ---
@@ -912,9 +999,9 @@
             // FULL PASSAGE simply restores baseline and exits
             if (mode === "full-passage") {
                 container.innerHTML = originalTodaysVersesHTML;
-                // Hide the drill footer when exiting word-by-word mode
+                // Always show the drill footer in full-passage mode
                 const drillFooter = document.getElementById("drill-footer");
-                if (drillFooter) drillFooter.style.display = "none";
+                if (drillFooter) drillFooter.style.display = "flex";
                 return;
             }
 
@@ -1272,113 +1359,183 @@
             }
         }
 
-        // --- Attach Fire & Hammer exercise button click handlers using event delegation ---
+        // --- Attach Drill Footer logic and event handlers ---
         document.addEventListener('DOMContentLoaded', () => {
-          // Ensure the exercise buttons are present and functional, retrying if not.
-          setTimeout(() => {
-            const firstBtn = document.getElementById('exercise-first-letters');
-            const wordBtn = document.getElementById('exercise-word-by-word');
-            const phraseBtn = document.getElementById('exercise-phrase-by-phrase');
-            const fullBtn = document.getElementById("exercise-full-passage");
-            // --- Listen Drill Button ---
-            let listenBtn = document.getElementById('exercise-listen');
-            if (!listenBtn) {
-              listenBtn = document.createElement('button');
-              listenBtn.id = 'exercise-listen';
-              listenBtn.className = 'exercise-btn inline-flex items-center font-semibold px-4 py-2 rounded-md shadow-md transition-colors duration-200';
-              listenBtn.style.backgroundColor = 'var(--accent-1)';
-              listenBtn.style.color = 'var(--primary-bg)';
-              listenBtn.textContent = 'Listen';
-              // Insert after phraseBtn if present, else after wordBtn
-              if (phraseBtn && phraseBtn.parentNode) {
-                phraseBtn.parentNode.insertBefore(listenBtn, phraseBtn.nextSibling);
-              } else if (wordBtn && wordBtn.parentNode) {
-                wordBtn.parentNode.insertBefore(listenBtn, wordBtn.nextSibling);
+          // Drill Footer Elements
+          const drillFooter = document.getElementById('drill-footer');
+          const drillModeSelect = document.getElementById('drill-mode-select');
+          const prevWordBtn = document.getElementById('drill-prev-word');
+          const nextWordBtn = document.getElementById('drill-next-word');
+          const prevVerseBtn = document.getElementById('drill-prev-verse');
+          const nextVerseBtn = document.getElementById('drill-next-verse');
+
+          // Show/hide footer based on drill mode
+          function showDrillFooter(mode) {
+            if (drillFooter) drillFooter.style.display = 'flex';
+            if (drillModeSelect) drillModeSelect.value = mode;
+          }
+          function hideDrillFooter() {
+            if (drillFooter) drillFooter.style.display = 'none';
+          }
+
+          // Drill mode change handler
+          if (drillModeSelect) {
+            drillModeSelect.addEventListener('change', (e) => {
+              const mode = e.target.value;
+              const controlsRow = document.getElementById('drill-controls-row');
+              const listenControls = document.getElementById('listen-controls');
+              const prevWordBtn = document.getElementById('drill-prev-word');
+              const nextWordBtn = document.getElementById('drill-next-word');
+              // Always stop speech if changing away from listen mode
+              if (typeof window.speechSynthesis !== 'undefined') {
+                window.speechSynthesis.cancel();
               }
+              // Show/hide listen controls and nav buttons
+              if (mode === 'listen') {
+                // Hide nav buttons, show listen controls
+                if (prevWordBtn) prevWordBtn.style.display = 'none';
+                if (nextWordBtn) nextWordBtn.style.display = 'none';
+                if (listenControls) listenControls.style.display = 'flex';
+                // Listen mode: trigger listen logic
+                if (typeof openFHExercise === 'function') openFHExercise('full-passage');
+                if (typeof triggerListenDrill === 'function') triggerListenDrill();
+                else listenDrillFallback();
+              } else if (mode === 'full-passage') {
+                // Hide nav buttons, hide listen controls
+                if (prevWordBtn) prevWordBtn.style.display = 'none';
+                if (nextWordBtn) nextWordBtn.style.display = 'none';
+                if (listenControls) listenControls.style.display = 'none';
+                if (typeof openFHExercise === 'function') openFHExercise(mode);
+              } else {
+                // Show nav buttons, hide listen controls
+                if (prevWordBtn) prevWordBtn.style.display = '';
+                if (nextWordBtn) nextWordBtn.style.display = '';
+                if (listenControls) listenControls.style.display = 'none';
+                if (typeof openFHExercise === 'function') openFHExercise(mode);
+              }
+            });
+          }
+
+          // Previous/Next word/verse handlers
+          if (prevWordBtn) prevWordBtn.onclick = () => { if (typeof showPrevWord === 'function') showPrevWord(); };
+          if (nextWordBtn) nextWordBtn.onclick = () => { if (typeof showNextWord === 'function') showNextWord(); };
+          if (prevVerseBtn) prevVerseBtn.onclick = () => { /* TODO: implement previous verse navigation */ };
+          if (nextVerseBtn) nextVerseBtn.onclick = () => { /* TODO: implement next verse navigation */ };
+
+          // --- Listen Drill Controls ---
+          let listenUtter = null;
+          let listenPaused = false;
+          let listenPlaying = false;
+          let listenRate = 1;
+          let listenText = '';
+          const listenControls = document.getElementById('listen-controls');
+          const playPauseBtn = document.getElementById('listen-play-pause');
+          const stopBtn = document.getElementById('listen-stop');
+          const speed05Btn = document.getElementById('listen-speed-05');
+          const speed1Btn = document.getElementById('listen-speed-1');
+          const speed2Btn = document.getElementById('listen-speed-2');
+          const playIcon = document.getElementById('listen-play-icon');
+          const pauseIcon = document.getElementById('listen-pause-icon');
+
+          function getListenText() {
+            const container = document.getElementById('todays-verses-display');
+            if (!container) return '';
+            let text = '';
+            const blocks = Array.from(container.children);
+            function isVerseNumberNode(node) {
+              if (!node) return false;
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                if ((node.tagName === 'SUP' || node.tagName === 'SPAN') && /^\d+$/.test(node.textContent.trim())) return true;
+              }
+              if (node.nodeType === Node.TEXT_NODE) {
+                return /^\d+$/.test(node.textContent.trim());
+              }
+              return false;
             }
-
-            if (firstBtn && wordBtn && phraseBtn) {
-              firstBtn.addEventListener('click', () => openFHExercise('first-letter'));
-              wordBtn.addEventListener('click', () => openFHExercise('word-by-word'));
-              phraseBtn.addEventListener('click', () => openFHExercise('phrase-by-phrase'));
-            } else {
-              console.warn('Exercise buttons not available on load. Retrying in 500ms...');
-            }
-            if (fullBtn) fullBtn.addEventListener("click", () => openFHExercise("full-passage"));
-
-            // Listen Drill logic
-            if (listenBtn) {
-              listenBtn.addEventListener('click', () => {
-                const container = document.getElementById('todays-verses-display');
-                if (!container) return;
-                // --- Remove any existing stop button ---
-                let stopBtn = document.getElementById('stop-listen-btn');
-                if (stopBtn) stopBtn.remove();
-
-                // Get all text content, skipping verse numbers (sup, span, or elements with only digits)
-                let text = '';
-                const blocks = Array.from(container.children);
-                function isVerseNumberNode(node) {
-                  if (!node) return false;
-                  if (node.nodeType === Node.ELEMENT_NODE) {
-                    // Check for <sup> or <span> with only digits
-                    if ((node.tagName === 'SUP' || node.tagName === 'SPAN') && /^\d+$/.test(node.textContent.trim())) return true;
-                  }
-                  if (node.nodeType === Node.TEXT_NODE) {
-                    return /^\d+$/.test(node.textContent.trim());
-                  }
-                  return false;
-                }
-                function getBlockText(block) {
-                  let t = '';
-                  block.childNodes.forEach(node => {
-                    if (!isVerseNumberNode(node)) {
-                      t += node.textContent;
-                    }
-                  });
-                  return t.trim();
-                }
-                if (blocks.length > 0) {
-                  text = blocks.map(getBlockText).filter(Boolean).join('. ');
-                } else {
-                  // Fallback: remove verse numbers from plain text
-                  text = container.textContent.replace(/(^|\s)\d+(?=\s|$)/g, '').replace(/\s+/g, ' ').trim();
-                }
-                if (!text) return;
-
-                // Add Stop Reading button
-                stopBtn = document.createElement('button');
-                stopBtn.id = 'stop-listen-btn';
-                stopBtn.textContent = 'Stop Reading';
-                stopBtn.className = 'exercise-btn px-4 py-2 rounded-md shadow-md transition-colors duration-200 ml-2';
-                stopBtn.style.backgroundColor = 'var(--accent-2)';
-                stopBtn.style.color = 'var(--primary-bg)';
-                listenBtn.parentNode.insertBefore(stopBtn, listenBtn.nextSibling);
-                stopBtn.onclick = () => {
-                  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-                  stopBtn.remove();
-                };
-
-                // Use Web Speech API
-                if ('speechSynthesis' in window) {
-                  window.speechSynthesis.cancel(); // Stop any previous
-                  const utter = new window.SpeechSynthesisUtterance(text);
-                  utter.rate = 0.57; // Even slower for clarity
-                  utter.pitch = 1;
-                  utter.volume = 1;
-                  // Try to use a pleasant English voice
-                  const voices = window.speechSynthesis.getVoices();
-                  const enVoices = voices.filter(v => v.lang && v.lang.startsWith('en'));
-                  if (enVoices.length > 0) utter.voice = enVoices[0];
-                  utter.onend = utter.onerror = () => { if (stopBtn) stopBtn.remove(); };
-                  window.speechSynthesis.speak(utter);
-                } else {
-                  alert('Sorry, your browser does not support text-to-speech.');
-                  if (stopBtn) stopBtn.remove();
+            function getBlockText(block) {
+              let t = '';
+              block.childNodes.forEach(node => {
+                if (!isVerseNumberNode(node)) {
+                  t += node.textContent;
                 }
               });
+              return t.trim();
             }
-          }, 500);
+            if (blocks.length > 0) {
+              text = blocks.map(getBlockText).filter(Boolean).join('. ');
+            } else {
+              text = container.textContent.replace(/(^|\s)\d+(?=\s|$)/g, '').replace(/\s+/g, ' ').trim();
+            }
+            return text;
+          }
+
+          function listenDrillFallback() {
+            listenText = getListenText();
+            if (!listenText) return;
+            if ('speechSynthesis' in window) {
+              window.speechSynthesis.cancel();
+              listenUtter = new window.SpeechSynthesisUtterance(listenText);
+              listenUtter.rate = listenRate;
+              listenUtter.pitch = 1;
+              listenUtter.volume = 1;
+              const voices = window.speechSynthesis.getVoices();
+              const enVoices = voices.filter(v => v.lang && v.lang.startsWith('en'));
+              if (enVoices.length > 0) listenUtter.voice = enVoices[0];
+              listenUtter.onend = listenUtter.onerror = () => {
+                listenPlaying = false;
+                listenPaused = false;
+                playIcon.style.display = '';
+                pauseIcon.style.display = 'none';
+              };
+              window.speechSynthesis.speak(listenUtter);
+              listenPlaying = true;
+              listenPaused = false;
+              playIcon.style.display = 'none';
+              pauseIcon.style.display = '';
+            } else {
+              alert('Sorry, your browser does not support text-to-speech.');
+            }
+          }
+
+          if (playPauseBtn) {
+            playPauseBtn.onclick = function() {
+              if (!listenPlaying) {
+                listenDrillFallback();
+              } else if (listenPaused) {
+                window.speechSynthesis.resume();
+                listenPaused = false;
+                playIcon.style.display = 'none';
+                pauseIcon.style.display = '';
+              } else {
+                window.speechSynthesis.pause();
+                listenPaused = true;
+                playIcon.style.display = '';
+                pauseIcon.style.display = 'none';
+              }
+            };
+          }
+          if (stopBtn) {
+            stopBtn.onclick = function() {
+              window.speechSynthesis.cancel();
+              listenPlaying = false;
+              listenPaused = false;
+              playIcon.style.display = '';
+              pauseIcon.style.display = 'none';
+            };
+          }
+          function setListenSpeed(rate) {
+            listenRate = rate;
+            if (listenPlaying) {
+              window.speechSynthesis.cancel();
+              setTimeout(() => listenDrillFallback(), 100);
+            }
+          }
+          if (speed05Btn) speed05Btn.onclick = () => setListenSpeed(0.5);
+          if (speed1Btn) speed1Btn.onclick = () => setListenSpeed(1);
+          if (speed2Btn) speed2Btn.onclick = () => setListenSpeed(2);
+
+          // Optionally, show the footer by default in certain modes
+          // showDrillFooter('full-passage');
         });
 
         // --- Mark Complete and Undo Handlers ---
@@ -1409,9 +1566,7 @@
 
         // --- Mark Complete Button Handler ---
         markCompleteButton.addEventListener("click", () => {
-          // Hide the word-drill navigation footer when marking complete
-          const drillFooter = document.getElementById("drill-footer");
-          if (drillFooter) drillFooter.style.display = "none";
+          // Do NOT hide the drill footer when marking complete
           // ... rest of mark complete logic (not shown here) ...
         });
 
