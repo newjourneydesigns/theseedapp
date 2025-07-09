@@ -152,8 +152,8 @@
         }
         /* Seed Planted button style */
         #mark-complete-button {
-            background-color: #cacb9e !important;
-            color: #285238 !important;
+            background-color: #34403A !important;
+            color: #cacb9e !important;
         }
         .loader {
             border: 5px solid var(--accent-2);
@@ -1364,7 +1364,7 @@
                   window.speechSynthesis.cancel(); // Stop any previous
                   const utter = new window.SpeechSynthesisUtterance(text);
                   utter.rate = 0.57; // Even slower for clarity
-                  utter.pitch = 4;
+                  utter.pitch = 1;
                   utter.volume = 1;
                   // Try to use a pleasant English voice
                   const voices = window.speechSynthesis.getVoices();
