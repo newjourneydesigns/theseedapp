@@ -273,6 +273,13 @@
                 </div>
                 <div class="space-y-4">
                     <div>
+                        <label class="flex items-center gap-2 text-sm font-medium">
+                            <input type="checkbox" id="silence-reminder-checkbox" class="form-checkbox">
+                            Daily Silence & Solitude Reminder
+                        </label>
+                        <p class="text-xs opacity-70 mt-1">Get a gentle daily prompt to pause for silence and prayer.</p>
+                    </div>
+                    <div>
                         <label for="passage-select" class="block mb-1 text-sm font-medium">Passage</label>
                         <select id="passage-select" class="form-input" required>
                             <option value="" disabled selected>Select a Passage</option>
@@ -516,6 +523,12 @@
                 <button id="side-menu-close-button" class="text-2xl">&times;</button>
             </div>
             <ul class="space-y-2">
+                <li>
+                  <label class="flex items-center gap-2 text-sm font-medium">
+                    <input type="checkbox" id="menu-silence-reminder-toggle" class="form-checkbox">
+                    Daily Silence & Solitude Reminder
+                  </label>
+                </li>
                 <li>
                   <label for="verse-text-size-select" class="block mb-1 text-sm font-medium">Verse Text Size</label>
                   <select id="verse-text-size-select" class="form-input" style="max-width: 140px;">
@@ -928,8 +941,9 @@
     <script>
       document.getElementById("footer-year").textContent = new Date().getFullYear();
     </script>
+    <!-- Silence & Solitude Timer Modal -->
+    <!-- Silence & Solitude modal and banner removed -->
     <script type="module">
-      // --- Verse Text Size Control ---
 
       document.addEventListener('DOMContentLoaded', function() {
         const sizeSelect = document.getElementById('verse-text-size-select');
@@ -1186,11 +1200,24 @@
           try { planObj = planStr ? JSON.parse(planStr) : null; } catch (e) {}
 
           // If it's a custom plan, render the custom passage and show progress info
-          if (planObj && planObj.custom && Array.isArray(planObj.verses)) {
+            if (planObj && planObj.custom && Array.isArray(planObj.verses)) {
             // Render the verses in the display area only
             const todaysVersesDisplay = document.getElementById('todays-verses-display');
             if (todaysVersesDisplay) {
-              todaysVersesDisplay.innerHTML = planObj.verses.map(v => `<p>${v.text}</p>`).join('');
+              todaysVersesDisplay.innerHTML = planObj.verses.map((v, i) => {
+                // Bold for today's verses (e.g., i >= memorizedCount && i < memorizedCount + todayCount), italics for memorized, normal for others
+                // For custom plans, treat first N as memorized, next M as today, rest as future (if needed)
+                // We'll use localStorage.completedVerses to determine memorized count
+                let memorizedCount = Array.isArray(planObj.completedVerses) ? planObj.completedVerses.length : 0;
+                let todayCount = 1; // Default: only one verse bolded for today (customize as needed)
+                if (i < memorizedCount) {
+                  return `<p style=\"color:#e6f3d3;font-weight:600;opacity:1;\">${v.text}</p>`;
+                } else if (i < memorizedCount + todayCount) {
+                  return `<p style=\"font-weight:bold;opacity:1;\">${v.text}</p>`;
+                } else {
+                  return `<p>${v.text}</p>`;
+                }
+              }).join('');
             }
 
             // --- Show progress info for custom plans ---
@@ -2299,7 +2326,9 @@
 
                 if (index < versesToShowToday) {
                     if (index < versesDone) {
-                        p.classList.add('opacity-50', 'italic');
+                        p.style.color = '#e6f3d3';
+                        p.style.fontWeight = '600';
+                        p.style.opacity = '.60';
                     } else {
                         p.classList.add('font-semibold');
                     }
