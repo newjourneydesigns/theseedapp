@@ -228,6 +228,17 @@
             padding-right: 3.5rem;
         }
         
+        /* Calendar icon styling for date inputs */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
+        
+        input[type="date"]::-moz-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
+        
         /* Modern button styles */
         .exercise-btn {
             background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
@@ -611,7 +622,7 @@
                       Done For Today
                     </button>
     <!-- Done For Today Confirmation Modal -->
-    <div id="done-confirm-modal" class="modal hidden">
+    <div id="done-confirm-modal-duplicate" class="modal hidden" style="display: none !important; visibility: hidden !important;">
       <div class="modal-content text-center">
         <h2 class="text-xl font-bold mb-6 text-gray-900">Well done!</h2>
         <p class="mb-4">"And the seeds that fell on the good soil represent honest, good-hearted people who hear God’s word, cling to it, and patiently produce a huge harvest." 
@@ -625,38 +636,41 @@
     <style>
       /* Done For Today Confirmation Modal Styles */
       #done-confirm-modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
-        background: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(4px);
-        pointer-events: auto;
-        padding: 1rem;
-        box-sizing: border-box;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 999999 !important;
+        background: rgba(0, 0, 0, 0.5) !important;
+        backdrop-filter: blur(4px) !important;
+        pointer-events: auto !important;
+        padding: 1rem !important;
+        box-sizing: border-box !important;
+        isolation: isolate !important;
       }
       #done-confirm-modal .modal-content {
-        background: var(--secondary-bg);
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        padding: 2rem;
-        min-width: 320px;
-        max-width: 480px;
-        width: 100%;
-        margin: 0 auto;
-        pointer-events: auto;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        color: var(--primary-text);
-        position: relative;
+        background: var(--secondary-bg) !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 12px !important;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
+        padding: 2rem !important;
+        min-width: 320px !important;
+        max-width: 480px !important;
+        width: 100% !important;
+        margin: 0 auto !important;
+        pointer-events: auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+        color: var(--primary-text) !important;
+        position: relative !important;
+        z-index: 1000000 !important;
+        transform: translateZ(0) !important;
       }
       #done-confirm-modal.hidden {
         display: none !important;
@@ -2462,10 +2476,8 @@
         });
 
         // --- Mark Complete Button Handler ---
-        markCompleteButton.addEventListener("click", () => {
-          // Do NOT hide the drill footer when marking complete
-          // ... rest of mark complete logic (not shown here) ...
-        });
+        // NOTE: This is now handled by the setupDoneConfirmModal() function
+        // to show confirmation modal before marking complete
 
         // --- Plan Setup: Start Plan Button Handler ---
         startPlanButton.addEventListener("click", () => {
@@ -2850,7 +2862,7 @@
             const versesPerDay = Math.ceil(remainingVerses / daysLeft);
 
             plan.progress = Math.min(totalVerses, versesDone + versesPerDay);
-            versesAddedToday = versesPerDay;   // remember what we added so we can undo
+            window.versesAddedToday = versesPerDay;   // remember what we added so we can undo
             savePlan();
             updateUI();
         });
