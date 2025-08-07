@@ -13,8 +13,8 @@
     
     <!-- PWA and Favicon Links -->
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="https://i.imgur.com/iVMQeFu.png" type="image/png">
-    <link rel="apple-touch-icon" href="https://i.imgur.com/iVMQeFu.png">
+    <link rel="icon" href="https://i.imgur.com/fBngafT.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://i.imgur.com/fBngafT.png">
 
     <!-- Tailwind CSS & Google Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -492,7 +492,7 @@
         <div id="setup-modal" class="modal hidden">
             <div class="modal-content">
                 <div class="text-center mb-6">
-                     <img src="https://i.imgur.com/eF4vmiG.png" alt="Logo" class="h-16 mx-auto mb-4">
+                     <img src="https://i.imgur.com/QQAgiSI.png" alt="Logo" class="h-16 mx-auto mb-4">
                      <h2 class="text-2xl font-bold">Create Your Plan</h2>
                      <p class="text-sm opacity-80">Select a passage to begin</p>
                 </div>
@@ -542,7 +542,7 @@
             <!-- Header -->
             <header class="flex items-center justify-between mb-6 pb-4 border-b" style="border-color: var(--secondary-bg);">
                 <button id="menu-button" class="flex-shrink-0">
-                    <img src="https://i.imgur.com/eF4vmiG.png" alt="Seed Logo" class="h-8 rounded-md">
+                    <img src="https://i.imgur.com/QQAgiSI.png" alt="Seed Logo" class="h-8 rounded-md">
                 </button>
                 <h1 id="passage-title" class="flex-grow text-xl md:text-2xl font-bold text-right mx-4">
     <span id="passage-link-wrapper" style="display:inline-flex;align-items:center;gap:0.5em;">
@@ -607,7 +607,7 @@
                       class="inline-flex items-center bg-seed-pale-yellow text-seed-light-olive font-semibold px-4 py-2 rounded-md shadow-md hover:bg-seed-dark-green hover:text-seed-dark-green transition-colors duration-300 hidden"
                       type="button"
                     >
-                      <img src="https://i.imgur.com/26XfGSP.png" alt="Seed Icon" class="w-5 h-5 mr-2">
+                      <img src="https://i.imgur.com/fBngafT.png" alt="Seed Icon" class="w-5 h-5 mr-2">
                       Done For Today
                     </button>
     <!-- Done For Today Confirmation Modal -->
@@ -814,7 +814,7 @@
             
             <!-- Advanced Settings -->
             <div class="modern-card p-4 border border-gray-500/20 bg-gray-500/5">
-                <h3 class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">Advanced Settings</h3>
+                <h3 class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">Start Over?</h3>
                 <button id="reset-plan-btn" class="w-full flex items-center gap-3 p-3 rounded-lg bg-gray-500/10 hover:bg-gray-500/20 text-gray-400 hover:text-gray-300 transition-all duration-200 font-semibold">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -1712,8 +1712,8 @@
                     let nodePhraseMap = blockPhraseMaps[b];
                     for (let p = 0; p < nodePhraseMap.length; ++p) {
                       const phraseObj = nodePhraseMap[p];
-                      // Show verse numbers always (if phrase is all digits)
-                      if (/^\d+$/.test(phraseObj.phrase.trim())) {
+                      // Show verse numbers and chapter:verse references always (e.g. "3" or "5:14")
+                      if (/^\d+$/.test(phraseObj.phrase.trim()) || /^\d+:\d+$/.test(phraseObj.phrase.trim())) {
                         blockHtml += `<span class=\"pbp-verse-number\">${phraseObj.phrase}</span>`;
                       } else if (phraseCount <= idx) {
                         blockHtml += `<span class=\"pbp-phrase\">${phraseObj.phrase}</span>`;
@@ -1780,8 +1780,8 @@
             // Find all direct children (paragraphs, divs, spans, etc) of the root (body)
             const blocks = Array.from(doc.body.children);
 
-            // Helper: returns true if a string is a verse number (all digits, e.g. "3")
-            const isVerseNumber = w => /^\d+$/.test(w);
+            // Helper: returns true if a string is a verse number (all digits, e.g. "3") or chapter:verse reference (e.g. "5:14")
+            const isVerseNumber = w => /^\d+$/.test(w) || /^\d+:\d+$/.test(w);
 
             // Helper: splits a string into words, keeping punctuation attached to words
             function splitWordsWithPunct(str) {
@@ -2107,9 +2107,9 @@
                 // Build a list of indices for non-verse-number words
                 const nonVerseWordIndices = [];
                 for (let i = 0; i < words.length; i++) {
-                  // Check if this word is a verse number by class as well (if available)
+                  // Check if this word is a verse number or chapter:verse reference
                   // But in this plain text mode, just use regex
-                  if (!/^\d+$/.test(words[i])) {
+                  if (!/^\d+$/.test(words[i]) && !/^\d+:\d+$/.test(words[i])) {
                     nonVerseWordIndices.push(i);
                   }
                 }
@@ -2123,7 +2123,7 @@
                 const input  = document.getElementById("typing-input");
                 const fullBtn = document.getElementById("full-view-btn-typing");
 
-                const isVerseNumber = w => /^\d+$/.test(w);
+                const isVerseNumber = w => /^\d+$/.test(w) || /^\d+:\d+$/.test(w);
                 const advance = () => {
                     // Skip any verse number words
                     while (nonVersePos < nonVerseWordIndices.length && isVerseNumber(words[nonVerseWordIndices[nonVersePos]])) nonVersePos++;
@@ -2247,10 +2247,10 @@
               
               if (currentPassage && preloadedPassages[currentPassage]) {
                 const passage = preloadedPassages[currentPassage];
-                // Filter out verse numbers and join the text
+                // Filter out verse numbers and chapter:verse references, then join the text
                 const fullText = passage.verses.map(v => {
-                  // Remove verse numbers at the beginning of text and clean up
-                  return v.text.replace(/^\d+\s*/, '').trim();
+                  // Remove verse numbers and chapter:verse references at the beginning of text and clean up
+                  return v.text.replace(/^\d+\s*/, '').replace(/^\d+:\d+\s*/, '').trim();
                 }).join('. ').replace(/\s+/g, ' ').trim();
                 return fullText;
               }
@@ -2258,8 +2258,8 @@
               // Fallback to custom passage if available
               const customText = localStorage.getItem('customPassageText');
               if (customText) {
-                // Remove verse numbers from custom text as well
-                return customText.replace(/^\d+\s*/gm, '').replace(/\s+/g, ' ').trim();
+                // Remove verse numbers and chapter:verse references from custom text as well
+                return customText.replace(/^\d+\s*/gm, '').replace(/^\d+:\d+\s*/gm, '').replace(/\s+/g, ' ').trim();
               }
               
               // If no full passage found, but user wants full passage, 
@@ -2270,7 +2270,7 @@
                   const plan = JSON.parse(planStr);
                   if (plan && plan.verses && Array.isArray(plan.verses)) {
                     const fullText = plan.verses.map(v => {
-                      return v.text.replace(/^\d+\s*/, '').trim();
+                      return v.text.replace(/^\d+\s*/, '').replace(/^\d+:\d+\s*/, '').trim();
                     }).join('. ').replace(/\s+/g, ' ').trim();
                     if (fullText) return fullText;
                   }
@@ -2288,10 +2288,12 @@
             function isVerseNumberNode(node) {
               if (!node) return false;
               if (node.nodeType === Node.ELEMENT_NODE) {
-                if ((node.tagName === 'SUP' || node.tagName === 'SPAN') && /^\d+$/.test(node.textContent.trim())) return true;
+                const text = node.textContent.trim();
+                if ((node.tagName === 'SUP' || node.tagName === 'SPAN') && (/^\d+$/.test(text) || /^\d+:\d+$/.test(text))) return true;
               }
               if (node.nodeType === Node.TEXT_NODE) {
-                return /^\d+$/.test(node.textContent.trim());
+                const text = node.textContent.trim();
+                return /^\d+$/.test(text) || /^\d+:\d+$/.test(text);
               }
               return false;
             }
@@ -2307,10 +2309,10 @@
             if (blocks.length > 0) {
               text = blocks.map(getBlockText).filter(Boolean).join('. ');
             } else {
-              text = container.textContent.replace(/(^|\s)\d+(?=\s|$)/g, '').replace(/\s+/g, ' ').trim();
+              text = container.textContent.replace(/(^|\s)\d+(?=\s|$)/g, '').replace(/(^|\s)\d+:\d+(?=\s|$)/g, '').replace(/\s+/g, ' ').trim();
             }
-            // Enhanced cleanup to remove verse numbers and chapter references
-            text = text.replace(/^\d+\s*/, '').replace(/\s+\d+\s+/g, ' ').replace(/\d+:\d+/g, '').replace(/\s+/g, ' ').trim();
+            // Enhanced cleanup to remove verse numbers and chapter:verse references
+            text = text.replace(/^\d+\s*/, '').replace(/\s+\d+\s+/g, ' ').replace(/\d+:\d+/g, '').replace(/^\d+:\d+\s*/, '').replace(/\s+\d+:\d+\s+/g, ' ').replace(/\s+/g, ' ').trim();
             return text;
           }
 

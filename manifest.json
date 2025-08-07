@@ -7,15 +7,15 @@
   "theme_color": "#34403a",
   "icons": [
     {
-      "src": "https://i.imgur.com/hMPdDWB.png",
+      "src": "https://i.imgur.com/fBngafT.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "https://i.imgur.com/hMPdDWB.png",
+      "src": "https://i.imgur.com/fBngafT.png",
       "sizes": "512x512",
       "type": "image/png"
     }
   ],
-  "apple-touch-icon": "https://i.imgur.com/hMPdDWB.png"
+  "apple-touch-icon": "https://i.imgur.com/fBngafT.png"
 }
