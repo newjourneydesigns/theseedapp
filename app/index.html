@@ -612,13 +612,13 @@
                     </button>
     <!-- Done For Today Confirmation Modal -->
     <div id="done-confirm-modal" class="modal hidden">
-      <div class="modal-content text-center max-w-xs mx-auto">
-        <h2 class="text-xl font-bold mb-4">Well done!</h2>
+      <div class="modal-content text-center">
+        <h2 class="text-xl font-bold mb-6 text-gray-900">Well done!</h2>
         <p class="mb-4">"And the seeds that fell on the good soil represent honest, good-hearted people who hear God’s word, cling to it, and patiently produce a huge harvest." 
         </br>Luke 8:15 NLT</p>
-        <div class="flex justify-center gap-4 mt-6">
-          <button id="done-confirm-btn" class="font-bold py-2 px-6 rounded-lg" style="background-color: var(--accent-1); color: var(--primary-bg);">Done</button>
-          <button id="done-cancel-btn" class="font-bold py-2 px-6 rounded-lg bg-gray-300 text-gray-800">Cancel</button>
+        <div class="flex justify-center gap-3">
+          <button id="done-cancel-btn" class="px-6 py-2 rounded-lg font-medium border border-opacity-30 text-opacity-80 bg-opacity-10 hover:bg-opacity-20 transition-colors" style="border-color: var(--border-color); color: var(--secondary-text); background-color: var(--border-color);">Cancel</button>
+          <button id="done-confirm-btn" class="px-6 py-2 rounded-lg font-medium text-white" style="background-color: var(--accent-1);">Done</button>
         </div>
       </div>
     </div>
@@ -631,34 +631,84 @@
         width: 100vw;
         height: 100vh;
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         justify-content: center;
         z-index: 9999;
-        background: rgba(0,0,0,0.75);
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
         pointer-events: auto;
-        /* Add space above modal */
-        padding-top: 7vh;
+        padding: 1rem;
+        box-sizing: border-box;
       }
       #done-confirm-modal .modal-content {
-        background: var(--primary-bg, #fff);
-        border-radius: 18px;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-        padding: 2rem 1.5rem 1.5rem 1.5rem;
-        min-width: 260px;
-        max-width: 95vw;
+        background: var(--secondary-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        padding: 2rem;
+        min-width: 320px;
+        max-width: 480px;
+        width: 100%;
         margin: 0 auto;
         pointer-events: auto;
         display: flex;
         flex-direction: column;
         align-items: center;
-        /* Add extra space above modal content */
-        margin-top: 2vh;
+        text-align: center;
+        color: var(--primary-text);
+        position: relative;
       }
       #done-confirm-modal.hidden {
         display: none !important;
       }
       #done-confirm-modal .modal-content button {
         min-width: 90px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+      }
+      #done-confirm-modal .modal-content p {
+        color: var(--secondary-text);
+        line-height: 1.6;
+      }
+      #done-confirm-modal .modal-content h2 {
+        color: var(--primary-text);
+      }
+      
+      /* Responsive modal sizing */
+      @media (max-width: 480px) {
+        #done-confirm-modal {
+          padding: 0.75rem;
+        }
+        #done-confirm-modal .modal-content {
+          min-width: 280px;
+          padding: 1.5rem;
+          border-radius: 8px;
+        }
+        #done-confirm-modal .modal-content h2 {
+          font-size: 1.125rem;
+          margin-bottom: 1rem;
+        }
+        #done-confirm-modal .modal-content p {
+          font-size: 0.875rem;
+        }
+        #done-confirm-modal .modal-content button {
+          padding: 0.5rem 1rem;
+          font-size: 0.875rem;
+        }
+      }
+      
+      @media (min-width: 481px) and (max-width: 768px) {
+        #done-confirm-modal .modal-content {
+          width: 85%;
+          max-width: 420px;
+        }
+      }
+      
+      @media (min-width: 769px) {
+        #done-confirm-modal .modal-content {
+          width: 80%;
+          max-width: 480px;
+        }
       }
     </style>
     <script type="module">
