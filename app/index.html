@@ -118,18 +118,40 @@
 
         /* Modern component styling */
         .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
             display: flex;
             align-items: center;
             justify-content: center;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(8px);
-            transition: all 0.3s ease;
+            z-index: 999999;
+        }
+        
+        .modal.hidden {
+            display: none !important;
+        }
+        
+        /* Specific overrides for tap word modal to ensure it covers everything */
+        #tap-word-modal {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: rgba(0, 0, 0, 0.9) !important;
+            z-index: 2147483647 !important; /* Maximum possible z-index */
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        
+        #tap-word-modal.hidden {
+            display: none !important;
         }
         
         .modal-content {
@@ -143,6 +165,13 @@
             box-shadow: var(--shadow-lg);
             transform: translateY(-20px);
             transition: transform 0.3s ease;
+            position: relative;
+            z-index: 10000002;
+        }
+        
+        #tap-word-modal .modal-content {
+            z-index: 10000002 !important;
+            position: relative !important;
         }
         
         .side-menu {
@@ -504,7 +533,7 @@
             <div class="modal-content">
                 <div class="text-center mb-6">
                      <img src="https://i.imgur.com/QQAgiSI.png" alt="Logo" class="h-16 mx-auto mb-4">
-                     <h2 class="text-2xl font-bold">Create Your Plan</h2>
+                     <h2 class="text-2xl font-bold">Create Meditation Your Plan</h2>
                      <p class="text-sm opacity-80">Select a passage to begin</p>
                 </div>
                 <div class="space-y-4">
@@ -785,6 +814,7 @@
         }
       });
     </script>
+
                     <button
                       id="undoCompleteButton"
                       class="inline-flex items-center bg-seed-pale-yellow text-seed-light-olive font-semibold px-4 py-2 rounded-md shadow-md hover:bg-seed-dark-green hover:text-seed-dark-green transition-colors duration-300 ml-2 hidden"
@@ -1135,6 +1165,7 @@
           <option value="word-by-word">Word for Word</option>
           <option value="phrase-by-phrase">Phrase by Phrase</option>
           <option value="listen">Listen</option>
+          <option value="tap-the-word">Tap the Word</option>
         </select>
       </div>
       <div id="drill-controls-row" class="flex items-center gap-2 w-full justify-center drill-controls-row">
@@ -1512,14 +1543,16 @@
             // Only update passage info if not a custom plan
             if (passage && passageKey !== 'Custom Passage') {
                 // Prevent any leftover 'Custom Passage' from previous state
-                if (youVersionLink.textContent === 'Custom Passage') youVersionLink.textContent = '';
-                if (passageTitle.textContent === 'Custom Passage') passageTitle.textContent = '';
-                if (passageTranslationSpan.textContent === 'Custom Passage') passageTranslationSpan.textContent = '';
-                youVersionLink.textContent = passage.name;
+                if (youVersionLink && youVersionLink.textContent === 'Custom Passage') youVersionLink.textContent = '';
+                if (passageTitle && passageTitle.textContent === 'Custom Passage') passageTitle.textContent = '';
+                if (passageTranslationSpan && passageTranslationSpan.textContent === 'Custom Passage') passageTranslationSpan.textContent = '';
+                if (youVersionLink) youVersionLink.textContent = passage.name;
                 // Format for YouVersion URL: e.g. Psalm 103:1–18 => Psalm103.1-18
                 let formattedReference = passage.name.replace(/\s+/g, '').replace(':', '.').replace('–', '-');
-                youVersionLink.href = `https://www.bible.com/bible/111/${formattedReference}`;
-                youVersionLink.style.display = '';
+                if (youVersionLink) {
+                  youVersionLink.href = `https://www.bible.com/bible/111/${formattedReference}`;
+                  youVersionLink.style.display = '';
+                }
                 youVersionLink.target = '_blank';
                 youVersionLink.rel = 'noopener noreferrer';
                 if (passageTranslationSpan) passageTranslationSpan.textContent = passage.translation || '';
@@ -2229,8 +2262,17 @@
 
           // Drill mode change handler
           if (drillModeSelect) {
+            // Track previous value for tap-the-word reset
+            drillModeSelect.setAttribute('data-previous-value', drillModeSelect.value);
             drillModeSelect.addEventListener('change', (e) => {
               const mode = e.target.value;
+              const prevValue = drillModeSelect.getAttribute('data-previous-value') || 'full-passage';
+              
+              // Update previous value for next time (but not for tap-the-word)
+              if (mode !== 'tap-the-word') {
+                drillModeSelect.setAttribute('data-previous-value', mode);
+              }
+              
               const controlsRow = document.getElementById('drill-controls-row');
               const listenControls = document.getElementById('listen-controls');
               const prevWordBtn = document.getElementById('drill-prev-word');
@@ -2266,6 +2308,26 @@
                 if (nextWordBtn) nextWordBtn.style.display = 'none';
                 if (listenControls) listenControls.style.display = 'none';
                 if (typeof openFHExercise === 'function') openFHExercise(mode);
+              } else if (mode === 'tap-the-word') {
+                // Hide nav buttons, hide listen controls, open tap the word modal
+                if (prevWordBtn) prevWordBtn.style.display = 'none';
+                if (nextWordBtn) nextWordBtn.style.display = 'none';
+                if (listenControls) listenControls.style.display = 'none';
+                // Open the Tap the Word modal and initialize
+                document.getElementById('tap-word-modal').classList.remove('hidden');
+                // Use setTimeout to ensure DOM is ready and focus the first field
+                setTimeout(() => {
+                  if (typeof initTapWordExercise === 'function') {
+                    initTapWordExercise();
+                  }
+                  // Focus the passage select for accessibility
+                  const passageSelect = document.getElementById('tap-word-passage-select');
+                  if (passageSelect) passageSelect.focus();
+                }, 50);
+                // Reset the drill mode select to previous value since we're opening a modal
+                setTimeout(() => {
+                  drillModeSelect.value = prevValue;
+                }, 100);
               } else {
                 // Show nav buttons, hide listen controls
                 if (prevWordBtn) prevWordBtn.style.display = '';
@@ -2690,12 +2752,14 @@
             const versesDone = plan.progress;
             const percent = totalVerses > 0 ? (versesDone / totalVerses) * 100 : 0;
             
-            const [mainRef, translation] = plan.reference.split('(');
-            passageTitle.innerHTML = `${mainRef.trim()} <span class="text-base opacity-75">${translation.replace(')','')}</span>`;
+            if (plan.reference && passageTitle) {
+              const [mainRef, translation] = plan.reference.split('(');
+              passageTitle.innerHTML = `${mainRef.trim()} <span class="text-base opacity-75">${translation.replace(')','')}</span>`;
+            }
 
-            versesMemorizedSpan.textContent = versesDone;
-            percentCompleteSpan.textContent = `${percent.toFixed(0)}%`;
-            progressBar.style.width = `${percent}%`;
+            if (versesMemorizedSpan) versesMemorizedSpan.textContent = versesDone;
+            if (percentCompleteSpan) percentCompleteSpan.textContent = `${percent.toFixed(0)}%`;
+            if (progressBar) progressBar.style.width = `${percent}%`;
 
             const today = new Date();
             today.setHours(0, 0, 0, 0);
@@ -2994,9 +3058,407 @@
                 }
             }
             targetDateInput.min = new Date().toISOString().split("T")[0];
+
+        // --- Tap the Word Exercise Functionality ---
+        const tapWordModal = document.getElementById('tap-word-modal');
+        const tapWordCancel = document.getElementById('tap-word-cancel');
+        const tapWordPassageSelect = document.getElementById('tap-word-passage-select');
+        const tapWordVerseSelect = document.getElementById('tap-word-verse-select');
+        const startTapWordBtn = document.getElementById('start-tap-word');
+        const tapWordGame = document.getElementById('tap-word-game');
+        const tapWordProgress = document.getElementById('tap-word-progress');
+        const tapWordVerseDisplay = document.getElementById('tap-word-verse-display');
+        const tapWordOptions = document.getElementById('tap-word-options');
+        const tapWordHint = document.getElementById('tap-word-hint');
+        const tapWordReset = document.getElementById('tap-word-reset');
+        const tapWordNewVerse = document.getElementById('tap-word-new-verse');
+        const tapWordCompletion = document.getElementById('tap-word-completion');
+        const tapWordFinalVerse = document.getElementById('tap-word-final-verse');
+        const tapWordError = document.getElementById('tap-word-error');
+        const sideMenu = document.getElementById('side-menu');
+        const sideMenuOverlay = document.getElementById('side-menu-overlay');
+
+        let currentExercise = {
+            passage: null,
+            verse: null,
+            words: [],
+            currentWordIndex: 0,
+            completedWords: [],
+            attempts: 0
+        };
+
+        // Initialize tap word exercise
+        function initTapWordExercise() {
+            // Populate passage dropdown
+            if (tapWordPassageSelect) {
+                tapWordPassageSelect.innerHTML = '<option value="" disabled selected>Select a passage...</option>';
+                Object.keys(preloadedPassages).forEach(passageKey => {
+                    const passage = preloadedPassages[passageKey];
+                    const option = document.createElement('option');
+                    option.value = passageKey;
+                    option.textContent = passage.name;
+                    tapWordPassageSelect.appendChild(option);
+                });
+            }
+        }
+
+        // Initialize the exercise on page load
+        initTapWordExercise();
+
+        // Generate distractors for a word
+        function generateDistractors(correctWord, allWords, count = 3) {
+            const distractors = [];
+            const usedWords = new Set([correctWord.toLowerCase()]);
+            
+            // Add random words from the verse
+            const verseWords = allWords.filter(word => 
+                word.toLowerCase() !== correctWord.toLowerCase() && 
+                word.length > 2
+            );
+            
+            while (distractors.length < count && verseWords.length > 0) {
+                const randomWord = verseWords[Math.floor(Math.random() * verseWords.length)];
+                if (!usedWords.has(randomWord.toLowerCase())) {
+                    distractors.push(randomWord);
+                    usedWords.add(randomWord.toLowerCase());
+                }
+                verseWords.splice(verseWords.indexOf(randomWord), 1);
+            }
+            
+            // If we need more distractors, add some common words
+            const commonWords = ['the', 'and', 'is', 'to', 'of', 'in', 'that', 'have', 'for', 'not', 'with', 'he', 'as', 'you', 'do', 'at'];
+            while (distractors.length < count) {
+                const randomCommon = commonWords[Math.floor(Math.random() * commonWords.length)];
+                if (!usedWords.has(randomCommon.toLowerCase())) {
+                    distractors.push(randomCommon);
+                    usedWords.add(randomCommon.toLowerCase());
+                }
+            }
+            
+            return distractors;
+        }
+
+        // Start the exercise
+        function startExercise(passage, verseData) {
+            const words = verseData.text.split(/\s+/).filter(word => word.length > 0);
+            
+            currentExercise = {
+                passage: passage,
+                verse: verseData,
+                words: words,
+                currentWordIndex: 0,
+                completedWords: [],
+                attempts: 0
+            };
+
+            // Hide selection form, show game
+            document.querySelector('#tap-word-modal .space-y-4').classList.add('hidden');
+            tapWordGame.classList.remove('hidden');
+            tapWordCompletion.classList.add('hidden');
+            
+            updateExerciseDisplay();
+        }
+
+        // Update the exercise display
+        function updateExerciseDisplay() {
+            const { words, currentWordIndex, completedWords } = currentExercise;
+            
+            // Update progress
+            tapWordProgress.textContent = `Word ${currentWordIndex + 1} of ${words.length}`;
+            
+            // Update verse display with completed words
+            let displayText = completedWords.join(' ');
+            if (displayText && currentWordIndex < words.length) displayText += ' _____';
+            tapWordVerseDisplay.textContent = displayText || '_____';
+            
+            if (currentWordIndex < words.length) {
+                // Generate options
+                const correctWord = words[currentWordIndex];
+                const distractors = generateDistractors(correctWord, words, 3);
+                const options = [correctWord, ...distractors].sort(() => Math.random() - 0.5);
+                
+                // Create option buttons
+                tapWordOptions.innerHTML = '';
+                options.forEach(word => {
+                    const button = document.createElement('button');
+                    button.className = 'exercise-btn';
+                    button.textContent = word;
+                    button.addEventListener('click', () => selectWord(word, button));
+                    tapWordOptions.appendChild(button);
+                });
+            } else {
+                // Exercise completed
+                showCompletion();
+            }
+        }
+
+        // Handle word selection
+        function selectWord(selectedWord, buttonElement) {
+            const correctWord = currentExercise.words[currentExercise.currentWordIndex];
+            
+            if (selectedWord === correctWord) {
+                // Correct selection - green success state
+                buttonElement.style.cssText = 'background: linear-gradient(135deg, #10b981, #059669) !important; color: white !important; transform: scale(1.05);';
+                
+                currentExercise.completedWords.push(correctWord);
+                currentExercise.currentWordIndex++;
+                
+                setTimeout(() => {
+                    updateExerciseDisplay();
+                }, 500);
+            } else {
+                // Incorrect selection - red error state
+                buttonElement.style.cssText = 'background: linear-gradient(135deg, #ef4444, #dc2626) !important; color: white !important; transform: scale(0.95);';
+                currentExercise.attempts++;
+                
+                setTimeout(() => {
+                    // Reset to original exercise-btn styling
+                    buttonElement.style.cssText = '';
+                }, 1000);
+            }
+        }
+
+        // Show hint
+        function showHint() {
+            if (currentExercise.currentWordIndex < currentExercise.words.length) {
+                const correctWord = currentExercise.words[currentExercise.currentWordIndex];
+                const buttons = tapWordOptions.querySelectorAll('button');
+                
+                buttons.forEach(button => {
+                    if (button.textContent === correctWord) {
+                        button.style.cssText = 'background: linear-gradient(135deg, #10b981, #059669) !important; color: white !important; animation: pulse 1s infinite;';
+                        setTimeout(() => {
+                            // Reset to original exercise-btn styling
+                            button.style.cssText = '';
+                        }, 2000);
+                    }
+                });
+            }
+        }
+
+        // Show completion
+        function showCompletion() {
+            tapWordOptions.innerHTML = '';
+            tapWordCompletion.classList.remove('hidden');
+            tapWordFinalVerse.textContent = `"${currentExercise.verse.text}"`;
+            tapWordVerseDisplay.textContent = currentExercise.words.join(' ');
+        }
+
+        // Reset exercise
+        function resetExercise() {
+            if (currentExercise.verse) {
+                startExercise(currentExercise.passage, currentExercise.verse);
+            }
+        }
+
+        // Event listeners
+        if (tapWordCancel) {
+            tapWordCancel.addEventListener('click', () => {
+                closeTapWordModal();
+            });
+        }
+
+        // Function to close modal
+        function closeTapWordModal() {
+            tapWordModal.classList.add('hidden');
+            // Reset to initial state
+            document.querySelector('#tap-word-modal .space-y-4').classList.remove('hidden');
+            tapWordGame.classList.add('hidden');
+            if (tapWordError) tapWordError.textContent = '';
+        }
+
+        // Backdrop click to close modal
+        if (tapWordModal) {
+            tapWordModal.addEventListener('click', (e) => {
+                if (e.target === tapWordModal) {
+                    closeTapWordModal();
+                }
+            });
+        }
+
+        // ESC key to close modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !tapWordModal.classList.contains('hidden')) {
+                closeTapWordModal();
+            }
+        });
+
+        // Focus trap within modal (basic implementation)
+        if (tapWordModal) {
+            tapWordModal.addEventListener('keydown', (e) => {
+                if (e.key === 'Tab') {
+                    const focusableElements = tapWordModal.querySelectorAll(
+                        'select:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+                    );
+                    const firstElement = focusableElements[0];
+                    const lastElement = focusableElements[focusableElements.length - 1];
+
+                    if (e.shiftKey) {
+                        if (document.activeElement === firstElement) {
+                            lastElement.focus();
+                            e.preventDefault();
+                        }
+                    } else {
+                        if (document.activeElement === lastElement) {
+                            firstElement.focus();
+                            e.preventDefault();
+                        }
+                    }
+                }
+            });
+        }
+
+        if (tapWordPassageSelect) {
+            tapWordPassageSelect.addEventListener('change', (e) => {
+                const passageKey = e.target.value;
+                const passage = preloadedPassages[passageKey];
+                
+                tapWordVerseSelect.innerHTML = '<option value="" disabled selected>Select a verse...</option>';
+                
+                if (passage && passage.verses) {
+                    passage.verses.forEach((verse, index) => {
+                        const option = document.createElement('option');
+                        option.value = index;
+                        option.textContent = `Verse ${verse.verse || index + 1}`;
+                        tapWordVerseSelect.appendChild(option);
+                    });
+                    
+                    tapWordVerseSelect.disabled = false;
+                }
+            });
+        }
+
+        if (tapWordVerseSelect) {
+            tapWordVerseSelect.addEventListener('change', (e) => {
+                startTapWordBtn.disabled = false;
+            });
+        }
+
+        if (startTapWordBtn) {
+            startTapWordBtn.addEventListener('click', () => {
+                const passageKey = tapWordPassageSelect.value;
+                const verseIndex = parseInt(tapWordVerseSelect.value);
+                const passage = preloadedPassages[passageKey];
+                
+                if (!passageKey || isNaN(verseIndex)) {
+                    if (tapWordError) tapWordError.textContent = 'Please select both passage and verse';
+                    return;
+                }
+                
+                if (tapWordError) tapWordError.textContent = '';
+                
+                if (passage && passage.verses[verseIndex]) {
+                    startExercise(passage, passage.verses[verseIndex]);
+                }
+            });
+        }
+
+        if (tapWordHint) {
+            tapWordHint.addEventListener('click', showHint);
+        }
+
+        if (tapWordReset) {
+            tapWordReset.addEventListener('click', resetExercise);
+        }
+
+        if (tapWordNewVerse) {
+            tapWordNewVerse.addEventListener('click', () => {
+                // Show selection form, hide game
+                document.querySelector('#tap-word-modal .space-y-4').classList.remove('hidden');
+                tapWordGame.classList.add('hidden');
+                tapWordPassageSelect.selectedIndex = 0;
+                tapWordVerseSelect.selectedIndex = 0;
+                tapWordVerseSelect.disabled = true;
+                startTapWordBtn.disabled = true;
+                if (tapWordError) tapWordError.textContent = '';
+            });
+        }
+
         });
 
     </script>
+
+    <script type="module">
+      import version from './bump-version.js';
+      const versionEl = document.createElement('div');
+      versionEl.textContent = `Seed App Version: ${version}`;
+      versionEl.style.textAlign = 'center';
+      versionEl.style.marginTop = '1rem';
+      document.body.appendChild(versionEl);
+    </script>
+
+    <!-- Tap the Word Exercise Modal - moved to end of body to avoid container constraints -->
+    <div id="tap-word-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="tap-word-title" aria-describedby="tap-word-subtitle">
+        <div class="modal-content">
+            <div class="text-center mb-6">
+                <img src="https://i.imgur.com/QQAgiSI.png" alt="Logo" class="h-16 mx-auto mb-4">
+                <h2 id="tap-word-title" class="text-2xl font-bold">Tap the Word Exercise</h2>
+                <p id="tap-word-subtitle" class="text-sm opacity-80">Interactive word-by-word memorization</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label for="tap-word-passage-select" class="block mb-1 text-sm font-medium">Passage</label>
+                    <select id="tap-word-passage-select" class="form-input" required>
+                        <option value="" disabled selected>Select a passage...</option>
+                        <!-- Options will be populated by JS -->
+                    </select>
+                </div>
+                <div>
+                    <label for="tap-word-verse-select" class="block mb-1 text-sm font-medium">Verse</label>
+                    <select id="tap-word-verse-select" class="form-input" disabled required>
+                        <option value="" disabled selected>Select a verse...</option>
+                        <!-- Options will be populated based on passage selection -->
+                    </select>
+                </div>
+                <button id="start-tap-word" class="w-full font-bold py-4 px-6 rounded-xl shadow-lg transition-all duration-300 bg-gradient-to-r hover:scale-105 hover:shadow-xl transform" style="background: linear-gradient(135deg, var(--accent-1), var(--accent-2)); color: var(--primary-bg);" disabled>
+                    <span class="flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                        </svg>
+                        Start Practice
+                    </span>
+                </button>
+                <button id="tap-word-cancel" class="w-full text-center text-sm opacity-70 hover:opacity-90 py-2 transition-opacity">Cancel</button>
+                <p id="tap-word-error" class="text-red-400 text-sm text-center h-4"></p>
+            </div>
+
+            <!-- Exercise Game (hidden initially) -->
+            <div id="tap-word-game" class="space-y-6 hidden">
+                <!-- Progress Display -->
+                <div class="text-center">
+                    <div id="tap-word-progress" class="text-lg font-medium mb-4"></div>
+                    <div id="tap-word-verse-display" class="text-xl leading-relaxed p-4 border rounded-lg min-h-16" style="background-color: var(--secondary-bg); border-color: var(--border-color);"></div>
+                </div>
+
+                <!-- Word Options -->
+                <div class="text-center">
+                    <p class="text-sm opacity-80 mb-3">Tap the next word:</p>
+                    <div id="tap-word-options" class="flex flex-wrap gap-3 justify-center"></div>
+                </div>
+
+                <!-- Controls -->
+                <div class="flex gap-3 justify-center">
+                    <button id="tap-word-hint" class="exercise-btn">
+                        Hint
+                    </button>
+                    <button id="tap-word-reset" class="exercise-btn">
+                        Reset
+                    </button>
+                    <button id="tap-word-new-verse" class="exercise-btn">New Verse</button>
+                </div>
+
+                <!-- Completion Message -->
+                <div id="tap-word-completion" class="text-center hidden">
+                    <div class="p-6 rounded-lg" style="background-color: var(--accent-1); color: var(--primary-bg);">
+                        <h3 class="text-xl font-bold mb-2">🎉 Well Done!</h3>
+                        <p class="mb-4">You've completed the verse!</p>
+                        <div id="tap-word-final-verse" class="text-lg italic"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
 
@@ -3025,7 +3487,7 @@
       }
     });
     </script>
-    </script>
+    
     <script type="module">
       import version from './bump-version.js';
       const versionEl = document.createElement('div');
