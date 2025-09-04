@@ -125,9 +125,11 @@
             height: 100%;
             background: rgba(0, 0, 0, 0.9);
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
             z-index: 999999;
+            overflow-y: auto;
+            padding: 20px 0;
         }
         
         .modal.hidden {
@@ -142,12 +144,13 @@
             width: 100vw !important;
             height: 100vh !important;
             margin: 0 !important;
-            padding: 0 !important;
+            padding: 20px 0 !important;
             background: rgba(0, 0, 0, 0.9) !important;
             z-index: 2147483647 !important; /* Maximum possible z-index */
             display: flex !important;
-            align-items: center !important;
+            align-items: flex-start !important;
             justify-content: center !important;
+            overflow-y: auto !important;
         }
         
         #tap-word-modal.hidden {
@@ -162,11 +165,14 @@
             border-radius: var(--radius-xl);
             width: 95%;
             max-width: 500px;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
             box-shadow: var(--shadow-lg);
             transform: translateY(-20px);
             transition: transform 0.3s ease;
             position: relative;
             z-index: 10000002;
+            margin: auto 0;
         }
         
         #tap-word-modal .modal-content {
