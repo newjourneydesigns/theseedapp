@@ -17,7 +17,25 @@
     <link rel="apple-touch-icon" href="https://i.imgur.com/fBngafT.png">
 
     <!-- Tailwind CSS & Google Fonts -->
+    <script>
+        // Suppress Tailwind CDN production warning
+        const originalWarn = console.warn;
+        console.warn = function(...args) {
+            if (args[0] && args[0].includes && args[0].includes('cdn.tailwindcss.com should not be used in production')) {
+                return; // Suppress this specific warning
+            }
+            originalWarn.apply(console, args);
+        };
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Configure Tailwind to suppress production warning
+        tailwind.config = {
+            theme: {
+                extend: {}
+            }
+        }
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
       <style>
@@ -1558,22 +1576,24 @@
                 if (youVersionLink) {
                   youVersionLink.href = `https://www.bible.com/bible/111/${formattedReference}`;
                   youVersionLink.style.display = '';
+                  youVersionLink.target = '_blank';
+                  youVersionLink.rel = 'noopener noreferrer';
                 }
-                youVersionLink.target = '_blank';
-                youVersionLink.rel = 'noopener noreferrer';
                 if (passageTranslationSpan) passageTranslationSpan.textContent = passage.translation || '';
             } else if (passageKey === 'Custom Passage') {
                 // Remove any text from the passage title and link for custom passage
-                youVersionLink.textContent = '';
-                youVersionLink.href = '';
-                youVersionLink.style.display = 'none';
-                passageTitle.textContent = '';
+                if (youVersionLink) {
+                    youVersionLink.textContent = '';
+                    youVersionLink.href = '';
+                    youVersionLink.style.display = 'none';
+                }
+                if (passageTitle) passageTitle.textContent = '';
                 if (passageTranslationSpan) passageTranslationSpan.textContent = '';
             } else {
                 // For any other case, ensure 'Custom Passage' is never shown
-                if (youVersionLink.textContent === 'Custom Passage') youVersionLink.textContent = '';
-                if (passageTitle.textContent === 'Custom Passage') passageTitle.textContent = '';
-                if (passageTranslationSpan.textContent === 'Custom Passage') passageTranslationSpan.textContent = '';
+                if (youVersionLink && youVersionLink.textContent === 'Custom Passage') youVersionLink.textContent = '';
+                if (passageTitle && passageTitle.textContent === 'Custom Passage') passageTitle.textContent = '';
+                if (passageTranslationSpan && passageTranslationSpan.textContent === 'Custom Passage') passageTranslationSpan.textContent = '';
             }
         }
 
@@ -3068,6 +3088,7 @@
         // --- Tap the Word Exercise Functionality ---
         const tapWordModal = document.getElementById('tap-word-modal');
         const tapWordCancel = document.getElementById('tap-word-cancel');
+        const tapWordClose = document.getElementById('tap-word-close');
         const tapWordPassageSelect = document.getElementById('tap-word-passage-select');
         const tapWordVerseSelect = document.getElementById('tap-word-verse-select');
         const startTapWordBtn = document.getElementById('start-tap-word');
@@ -3078,8 +3099,11 @@
         const tapWordHint = document.getElementById('tap-word-hint');
         const tapWordReset = document.getElementById('tap-word-reset');
         const tapWordNewVerse = document.getElementById('tap-word-new-verse');
+        const tapWordPrevVerse = document.getElementById('tap-word-prev-verse');
+        const tapWordNextVerse = document.getElementById('tap-word-next-verse');
         const tapWordCompletion = document.getElementById('tap-word-completion');
         const tapWordFinalVerse = document.getElementById('tap-word-final-verse');
+        const tapWordCurrentPassage = document.getElementById('tap-word-current-passage');
         const tapWordError = document.getElementById('tap-word-error');
         const sideMenu = document.getElementById('side-menu');
         const sideMenuOverlay = document.getElementById('side-menu-overlay');
@@ -3162,7 +3186,36 @@
             tapWordGame.classList.remove('hidden');
             tapWordCompletion.classList.add('hidden');
             
+            // Show current passage info
+            if (tapWordCurrentPassage) {
+                console.log('Passage parameter:', passage);
+                console.log('Verse data:', verseData);
+                const passageData = preloadedPassages[passage];
+                
+                if (passageData && verseData) {
+                    // Find the verse index to construct the reference
+                    const verseIndex = passageData.verses.findIndex(v => v === verseData);
+                    const verseNumber = verseIndex + 1; // Convert to 1-based numbering
+                    
+                    // Extract chapter and verse from passage name (e.g., "Psalm 23" -> "23")
+                    const chapterMatch = passageData.name.match(/(\d+)/);
+                    const chapter = chapterMatch ? chapterMatch[1] : '';
+                    
+                    // Construct reference like "Psalm 23:1"
+                    const verseReference = chapter ? 
+                        `${passageData.name}:${verseNumber}` : 
+                        `${passageData.name} - Verse ${verseNumber}`;
+                    
+                    tapWordCurrentPassage.textContent = verseReference;
+                    tapWordCurrentPassage.classList.remove('hidden');
+                } else {
+                    console.error('Passage data or verse data not found');
+                    tapWordCurrentPassage.classList.add('hidden');
+                }
+            }
+            
             updateExerciseDisplay();
+            updateNavigationButtons();
         }
 
         // Update the exercise display
@@ -3257,9 +3310,66 @@
             }
         }
 
+        // Navigate to previous or next verse
+        function navigateToAdjacentVerse(direction) {
+            if (!currentExercise.passage) return;
+            
+            const currentPassage = preloadedPassages[currentExercise.passage];
+            if (!currentPassage || !currentPassage.verses) return;
+            
+            const verses = currentPassage.verses;
+            const currentVerseIndex = verses.findIndex(v => v === currentExercise.verse);
+            
+            if (currentVerseIndex === -1) return;
+            
+            const newIndex = currentVerseIndex + direction;
+            
+            // Check bounds
+            if (newIndex < 0 || newIndex >= verses.length) {
+                if (tapWordError) {
+                    tapWordError.textContent = direction === -1 ? 'Already at first verse' : 'Already at last verse';
+                    setTimeout(() => {
+                        if (tapWordError) tapWordError.textContent = '';
+                    }, 2000);
+                }
+                return;
+            }
+            
+            // Start exercise with new verse
+            const newVerse = verses[newIndex];
+            startExercise(currentExercise.passage, newVerse);
+        }
+
+        // Update navigation button states
+        function updateNavigationButtons() {
+            if (!currentExercise.passage || !tapWordPrevVerse || !tapWordNextVerse) return;
+            
+            const currentPassage = preloadedPassages[currentExercise.passage];
+            if (!currentPassage || !currentPassage.verses) return;
+            
+            const verses = currentPassage.verses;
+            const currentVerseIndex = verses.findIndex(v => v === currentExercise.verse);
+            
+            if (currentVerseIndex === -1) return;
+            
+            // Enable/disable buttons based on position
+            tapWordPrevVerse.disabled = currentVerseIndex === 0;
+            tapWordNextVerse.disabled = currentVerseIndex === verses.length - 1;
+            
+            // Update button opacity to show disabled state
+            tapWordPrevVerse.style.opacity = tapWordPrevVerse.disabled ? '0.5' : '1';
+            tapWordNextVerse.style.opacity = tapWordNextVerse.disabled ? '0.5' : '1';
+        }
+
         // Event listeners
         if (tapWordCancel) {
             tapWordCancel.addEventListener('click', () => {
+                closeTapWordModal();
+            });
+        }
+
+        if (tapWordClose) {
+            tapWordClose.addEventListener('click', () => {
                 closeTapWordModal();
             });
         }
@@ -3354,7 +3464,7 @@
                 if (tapWordError) tapWordError.textContent = '';
                 
                 if (passage && passage.verses[verseIndex]) {
-                    startExercise(passage, passage.verses[verseIndex]);
+                    startExercise(passageKey, passage.verses[verseIndex]);
                 }
             });
         }
@@ -3380,6 +3490,18 @@
             });
         }
 
+        if (tapWordPrevVerse) {
+            tapWordPrevVerse.addEventListener('click', () => {
+                navigateToAdjacentVerse(-1);
+            });
+        }
+
+        if (tapWordNextVerse) {
+            tapWordNextVerse.addEventListener('click', () => {
+                navigateToAdjacentVerse(1);
+            });
+        }
+
         });
 
     </script>
@@ -3396,10 +3518,18 @@
     <!-- Tap the Word Exercise Modal - moved to end of body to avoid container constraints -->
     <div id="tap-word-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="tap-word-title" aria-describedby="tap-word-subtitle">
         <div class="modal-content">
+            <!-- Close button -->
+            <button id="tap-word-close" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full transition-colors duration-200 hover:bg-opacity-20" style="background-color: rgba(255, 255, 255, 0.1); color: var(--primary-text);" aria-label="Close modal">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            
             <div class="text-center mb-6">
                 <img src="https://i.imgur.com/QQAgiSI.png" alt="Logo" class="h-16 mx-auto mb-4">
                 <h2 id="tap-word-title" class="text-2xl font-bold">Tap the Word Exercise</h2>
                 <p id="tap-word-subtitle" class="text-sm opacity-80">Interactive word-by-word memorization</p>
+                <div id="tap-word-current-passage" class="text-sm font-medium mt-2 opacity-90 hidden"></div>
             </div>
             <div class="space-y-4">
                 <div>
@@ -3443,14 +3573,26 @@
                 </div>
 
                 <!-- Controls -->
-                <div class="flex gap-3 justify-center">
-                    <button id="tap-word-hint" class="exercise-btn">
+                <div class="flex gap-2 justify-center">
+                    <button id="tap-word-hint" class="px-3 py-1.5 text-sm rounded-md border transition-colors duration-200" style="border-color: var(--border-color); color: var(--secondary-text); background-color: var(--secondary-bg);">
                         Hint
                     </button>
-                    <button id="tap-word-reset" class="exercise-btn">
+                    <button id="tap-word-reset" class="px-3 py-1.5 text-sm rounded-md border transition-colors duration-200" style="border-color: var(--border-color); color: var(--secondary-text); background-color: var(--secondary-bg);">
                         Reset
                     </button>
-                    <button id="tap-word-new-verse" class="exercise-btn">New Verse</button>
+                    <button id="tap-word-new-verse" class="px-3 py-1.5 text-sm rounded-md border transition-colors duration-200" style="border-color: var(--border-color); color: var(--secondary-text); background-color: var(--secondary-bg);">
+                        New Verse
+                    </button>
+                </div>
+
+                <!-- Navigation Controls -->
+                <div class="flex gap-2 justify-center">
+                    <button id="tap-word-prev-verse" class="px-3 py-1.5 text-sm rounded-md border transition-colors duration-200" style="border-color: var(--border-color); color: var(--secondary-text); background-color: var(--secondary-bg);">
+                        Previous Verse
+                    </button>
+                    <button id="tap-word-next-verse" class="px-3 py-1.5 text-sm rounded-md border transition-colors duration-200" style="border-color: var(--border-color); color: var(--secondary-text); background-color: var(--secondary-bg);">
+                        Next Verse
+                    </button>
                 </div>
 
                 <!-- Completion Message -->
